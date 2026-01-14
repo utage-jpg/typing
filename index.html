@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>Socionics Adaptive Typing (50Q / 100 Bank)</title>
+<title>Socionics Adaptive Typing</title>
 <meta name="theme-color" content="#0ea5e9" />
 <style>
 :root{
@@ -66,7 +66,6 @@ a:hover{text-decoration:underline}
   padding:10px 12px;border-radius:12px;font-weight:900
 }
 .note{font-size:12px;color:var(--muted);line-height:1.7}
-hr{border:none;border-top:1px solid var(--line);margin:10px 0}
 </style>
 </head>
 <body>
@@ -74,6 +73,7 @@ hr{border:none;border-top:1px solid var(--line);margin:10px 0}
   <div class="card" id="app">
     <div class="hd">
       <h1>ソシオニクスタイピング</h1>
+      <div class="small">結果は最後にのみ表示されます</div>
     </div>
 
     <div class="body" id="screenQuiz">
@@ -93,6 +93,7 @@ hr{border:none;border-top:1px solid var(--line);margin:10px 0}
           <button class="btn" id="btnSkip">わからない</button>
           <button class="btn primary" id="btnNext" disabled>次へ</button>
         </div>
+
       </div>
     </div>
 
@@ -120,18 +121,18 @@ hr{border:none;border-top:1px solid var(--line);margin:10px 0}
 
 <script>
 /* =========================================================
-   0) 既存ツールへのリンク（同フォルダ想定）
-   - 日本語ファイル名/記号（【】×）対策として encodeURI を通す
+   0) 既存ツールへのリンク（安定版）
    ========================================================= */
-const URL_VIEWER = encodeURI("./【完成版】ソシオまとめビューア.html");
-const URL_FUNC   = encodeURI("./【完成版】機能×情報要素.html");
-document.getElementById("linkViewer").href = URL_VIEWER;
-document.getElementById("linkFunc").href   = URL_FUNC;
+const VIEWER_NAME = "【完成版】ソシオまとめビューア.html";
+const FUNC_NAME   = "【完成版】機能×情報要素.html";
+document.getElementById("linkViewer").href = new URL(encodeURI(VIEWER_NAME), location.href).href;
+document.getElementById("linkFunc").href   = new URL(encodeURI(FUNC_NAME),   location.href).href;
 
 /* =========================================================
-   1) 型・Model A（既存ツール整合）:contentReference[oaicite:1]{index=1}
+   1) 型・Model A（既存ツール整合）
    ========================================================= */
 const TYPES_UI=["ILE","SEI","ESE","LII","EIE","LSI","SLE","IEI","SEE","ILI","LIE","ESI","LSE","EII","IEE","SLI"];
+const ELEMENTS = ["Te","Ti","Fe","Fi","Ne","Ni","Se","Si"];
 
 const QUADRA={
   ILE:"Alpha", SEI:"Alpha", ESE:"Alpha", LII:"Alpha",
@@ -164,10 +165,8 @@ const MODEL={
   EII:["Fi","Ne","Ti","Se","Te","Si","Fe","Ni"]
 };
 
-// ①〜⑧に対応する次元（既存の「次元タグ」思想に合わせる）
 const DIM_BY_POS=["4","3","2","1","1","2","3","4"]; // pos:1..8
 
-// クアドラ価値（価値/非価値の最重要ロジック）
 const QUADRA_VALUES={
   Alpha:new Set(["Ne","Ti","Fe","Si"]),
   Beta :new Set(["Fe","Ni","Se","Ti"]),
@@ -321,7 +320,7 @@ if(BANK.length !== 100){
 }
 
 /* =========================================================
-   3) スコアリング
+   3) 回答スケール
    ========================================================= */
 const TARGET_Q = 50;
 const SCALE = [
@@ -332,13 +331,66 @@ const SCALE = [
   {label:"全くそう思わない",   v:-2},
 ];
 
-function softmax(scores){
-  const mx = Math.max(...Object.values(scores));
-  const exps = Object.fromEntries(Object.entries(scores).map(([k,v])=>[k, Math.exp(v-mx)]));
+/* =========================================================
+   4) 状態
+   ========================================================= */
+const state = {
+  step: 0,
+  askedIds: [],
+  answers: [],
+  stats: Object.fromEntries(ELEMENTS.map(e => [e, {vSum:0, vN:0, dSum:0, dN:0}])),
+  scores: Object.fromEntries(TYPES_UI.map(t=>[t, 0])),
+  elemCount: Object.fromEntries(ELEMENTS.map(e => [e, 0])),
+  _pending: null,
+};
+
+/* =========================================================
+   5) ユーティリティ
+   ========================================================= */
+function softmaxWithTemp(scores, temp=2.6){
+  const scaled = Object.fromEntries(Object.entries(scores).map(([k,v])=>[k, v/temp]));
+  const mx = Math.max(...Object.values(scaled));
+  const exps = Object.fromEntries(Object.entries(scaled).map(([k,v])=>[k, Math.exp(v-mx)]));
   const sum = Object.values(exps).reduce((a,b)=>a+b,0);
   return Object.fromEntries(Object.entries(exps).map(([k,v])=>[k, v/sum]));
 }
 
+function topN(probs, n=3){
+  return Object.entries(probs).sort((a,b)=>b[1]-a[1]).slice(0,n);
+}
+
+function formatTop3ForDisplay(top3){
+  const floor = 0.01;
+  const cap   = 0.98;
+
+  const sum = top3.reduce((s, x)=>s + x[1], 0) || 1;
+  let p = top3.map(x => x[1] / sum);
+
+  let rem = 1 - 3*floor; // 0.97
+  p = p.map(x => floor + rem*x);
+
+  if(p[0] > cap){
+    const rest = 1 - cap;
+    p[0] = cap;
+
+    const r2 = Math.max(p[1]-floor, 0);
+    const r3 = Math.max(p[2]-floor, 0);
+    const rsum = r2 + r3;
+
+    if(rsum > 0){
+      p[1] = floor + rest * (r2/rsum);
+      p[2] = floor + rest * (r3/rsum);
+    }else{
+      p[1] = floor;
+      p[2] = floor;
+    }
+  }
+  return top3.map((x,i)=>[x[0], Math.round(p[i]*100)]);
+}
+
+/* =========================================================
+   6) 出題識別力（既存の重み式：価値>次元>補助）
+   ========================================================= */
 function elementPos(type, element){ return MODEL[type].indexOf(element); } // 0..7
 function elementDim(type, element){
   const pos = elementPos(type, element);
@@ -349,13 +401,12 @@ function isValued(type, element){
   const q = QUADRA[type];
   return QUADRA_VALUES[q].has(element);
 }
-
 function weightForQuestion(type, q){
   const Wv=3.0, Wd=2.0, Wb=1.0;
 
   if(q.kind==="b"){
     const w = (q.wMap && (q.wMap[type] ?? 0)) || 0;
-    return Wb * 0.55 * w * q.dir; // bは控えめ
+    return Wb * 0.55 * w * q.dir;
   }
 
   const e=q.element;
@@ -367,17 +418,13 @@ function weightForQuestion(type, q){
   }
 
   if(q.kind==="d"){
-    const dim = elementDim(type,e); // 1..4
+    const dim = elementDim(type,e);
     const dimScore = {1:-1.2, 2:0.2, 3:0.9, 4:1.3}[dim] ?? 0.2;
     return Wd * dimScore * q.dir;
   }
-
   return 0;
 }
 
-/* =========================================================
-   4) 適応出題（識別力最大）
-   ========================================================= */
 function varianceWeighted(values, probs){
   const mu = Object.keys(values).reduce((s,t)=>s + values[t]*probs[t], 0);
   return Object.keys(values).reduce((s,t)=>{
@@ -386,8 +433,112 @@ function varianceWeighted(values, probs){
   }, 0);
 }
 
-function pickNextQuestion(state){
-  const probs = softmax(state.scores);
+/* =========================================================
+   7) コア：価値(V)とスキル(S)を分離してタイプスコア化
+   ========================================================= */
+function expectedValByPos(pos){ // 1,2,5,6 が価値
+  return (pos===1 || pos===2 || pos===5 || pos===6) ? +1 : -1;
+}
+function dimToSkill(dim){ // 1..4 -> [-1..+1]
+  return ({1:-1.0, 2:-0.3, 3:+0.3, 4:+1.0}[dim] ?? 0);
+}
+function simSq(a,b){
+  const d = a-b;
+  return -(d*d);
+}
+
+function computeScoresFromState(){
+  const wV = 3.0;
+  const wS = 2.0;
+  const wB = 0.55;
+
+  const V = {};
+  const S = {};
+  for(const e of ELEMENTS){
+    const st = state.stats[e];
+    V[e] = (st.vN>0) ? (st.vSum / (2*st.vN)) : 0; // -1..+1
+    S[e] = (st.dN>0) ? (st.dSum / (2*st.dN)) : 0; // -1..+1
+  }
+
+  const scores = Object.fromEntries(TYPES_UI.map(t=>[t, 0]));
+
+  for(const t of TYPES_UI){
+    let sc = 0;
+    for(const e of ELEMENTS){
+      const pos0 = MODEL[t].indexOf(e);
+      const pos  = pos0 + 1;
+
+      const expV = expectedValByPos(pos);
+      const dim  = parseInt(DIM_BY_POS[pos0],10);
+      const expS = dimToSkill(dim);
+
+      sc += wV * simSq(V[e], expV);
+      sc += wS * simSq(S[e], expS);
+    }
+    scores[t] = sc;
+  }
+
+  // b補助は answers から再計算（戻る対応）
+  for(let i=0;i<state.step;i++){
+    const a = state.answers[i];
+    if(!a || a.value===null) continue;
+    const q = BANK[a.id];
+    if(q.kind !== "b") continue;
+
+    const v = a.value;
+    for(const t of TYPES_UI){
+      const w = (q.wMap && (q.wMap[t] ?? 0)) || 0;
+      scores[t] += wB * v * w * q.dir;
+    }
+  }
+
+  state.scores = scores;
+}
+
+/* =========================================================
+   8) 回答反映・復元
+   ========================================================= */
+function applyAnswer(bankId, value){
+  const q = BANK[bankId];
+  if(value===null) return;
+
+  if(q.element){
+    state.elemCount[q.element] = (state.elemCount[q.element] || 0) + 1;
+  }
+
+  if(q.kind === "b") return;
+
+  const e = q.element;
+  if(!e) return;
+
+  if(q.kind === "v"){
+    state.stats[e].vSum += value * q.dir;
+    state.stats[e].vN   += 1;
+  }else if(q.kind === "d"){
+    state.stats[e].dSum += value * q.dir;
+    state.stats[e].dN   += 1;
+  }
+}
+
+function rebuildFromAnswers(){
+  state.stats = Object.fromEntries(ELEMENTS.map(e => [e, {vSum:0, vN:0, dSum:0, dN:0}]));
+  state.elemCount = Object.fromEntries(ELEMENTS.map(e => [e, 0]));
+
+  for(let i=0;i<state.step;i++){
+    const a = state.answers[i];
+    if(!a) continue;
+    applyAnswer(a.id, a.value);
+  }
+  computeScoresFromState();
+}
+
+/* =========================================================
+   9) 適応出題
+   ========================================================= */
+function pickNextQuestion(){
+  computeScoresFromState();
+  const probs = softmaxWithTemp(state.scores, 2.6);
+
   const used = new Set(state.askedIds);
   let best = null;
   let bestScore = -1e9;
@@ -415,8 +566,15 @@ function pickNextQuestion(state){
   return best;
 }
 
+function ensureNextQuestion(){
+  if(state.step >= TARGET_Q) return;
+  if(state.askedIds.length > state.step) return;
+  const pick = pickNextQuestion();
+  state.askedIds.push(pick.id);
+}
+
 /* =========================================================
-   5) UI / 状態管理
+   10) UI
    ========================================================= */
 const elBarFill = document.getElementById("barFill");
 const elProg = document.getElementById("progText");
@@ -430,14 +588,6 @@ const btnNext = document.getElementById("btnNext");
 
 const screenQuiz = document.getElementById("screenQuiz");
 const screenResult = document.getElementById("screenResult");
-
-const state = {
-  step: 0,
-  askedIds: [],
-  answers: [],
-  scores: Object.fromEntries(TYPES_UI.map(t=>[t, 0])),
-  elemCount: {Te:0,Ti:0,Fe:0,Fi:0,Ne:0,Ni:0,Se:0,Si:0},
-};
 
 function renderScale(selectedValue){
   elScale.innerHTML = "";
@@ -458,37 +608,6 @@ function renderScale(selectedValue){
 function setProgress(){
   elProg.textContent = `${state.step} / ${TARGET_Q}`;
   elBarFill.style.width = `${(state.step/TARGET_Q)*100}%`;
-}
-
-function ensureNextQuestion(){
-  if(state.step >= TARGET_Q) return;
-  if(state.askedIds.length > state.step) return;
-  const pick = pickNextQuestion(state);
-  state.askedIds.push(pick.id);
-}
-
-function applyAnswer(bankId, value){
-  const q = BANK[bankId];
-  if(value===null) return;
-
-  const a = value; // -2..2
-  for(const t of TYPES_UI){
-    state.scores[t] += a * weightForQuestion(t, q);
-  }
-  if(q.element){
-    state.elemCount[q.element] = (state.elemCount[q.element]||0) + 1;
-  }
-}
-
-function rebuildScores(){
-  state.scores = Object.fromEntries(TYPES_UI.map(t=>[t, 0]));
-  state.elemCount = {Te:0,Ti:0,Fe:0,Fi:0,Ne:0,Ni:0,Se:0,Si:0};
-
-  for(let i=0;i<state.step;i++){
-    const a = state.answers[i];
-    if(!a) continue;
-    applyAnswer(a.id, a.value);
-  }
 }
 
 function renderCurrent(){
@@ -512,12 +631,13 @@ function goNext(withSkip=false){
   const value = withSkip ? null : state._pending;
   if(!withSkip && (value===null || value===undefined)) return;
 
-  // ▼▼▼ ここが重要：その場でスコアに反映（これが抜けていたため6%固定） ▼▼▼
+  // 反映
   applyAnswer(bankId, value);
 
-  // 回答保存
+  // 保存
   state.answers[state.step] = {id: bankId, value};
 
+  // 進む
   state.step += 1;
 
   if(state.step >= TARGET_Q){
@@ -530,7 +650,7 @@ function goNext(withSkip=false){
 function goBack(){
   if(state.step<=0) return;
   state.step -= 1;
-  rebuildScores();
+  rebuildFromAnswers();
   renderCurrent();
 }
 
@@ -538,13 +658,11 @@ btnNext.addEventListener("click", ()=>goNext(false));
 btnSkip.addEventListener("click", ()=>{ state._pending=null; goNext(true); });
 btnBack.addEventListener("click", goBack);
 
-/* =========================================================
-   6) 結果表示（上位3タイプ）
-   ========================================================= */
-function topN(probs, n=3){
-  return Object.entries(probs).sort((a,b)=>b[1]-a[1]).slice(0,n);
-}
+document.getElementById("btnRestart").addEventListener("click", ()=>location.reload());
 
+/* =========================================================
+   11) 結果画面
+   ========================================================= */
 function typeSummary(t){
   const q = QUADRA[t];
   const lead = MODEL[t][0], crea = MODEL[t][1];
@@ -573,19 +691,21 @@ function typeSummary(t){
 }
 
 function showResult(){
-  const probs = softmax(state.scores);
-  const top3 = topN(probs, 3);
+  computeScoresFromState();
+  const probs = softmaxWithTemp(state.scores, 2.6);
+  const top3raw = topN(probs, 3);
+  const top3disp = formatTop3ForDisplay(top3raw);
 
   screenQuiz.style.display="none";
   screenResult.style.display="block";
 
-  const head = top3.map(([t,p],i)=>`${i+1}位 ${t}（${Math.round(p*100)}%）`).join(" / ");
+  const head = top3disp.map(([t,p],i)=>`${i+1}位 ${t}（${p}%）`).join(" / ");
   document.getElementById("resHeadline").textContent = head;
 
   const resCards = document.getElementById("resCards");
   resCards.innerHTML = "";
 
-  top3.forEach(([t,p], idx)=>{
+  top3disp.forEach(([t,p], idx)=>{
     const s = typeSummary(t);
     const div = document.createElement("div");
     div.className = "qbox";
@@ -593,24 +713,23 @@ function showResult(){
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
         <div>
           <div class="small">${idx+1}位</div>
-          <div style="font-size:18px;font-weight:900">${t} <span style="font-size:11px;color:#334155;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 8px">${QSYM[s.quadra]} ${s.quadra}</span></div>
+          <div style="font-size:18px;font-weight:900">${t}
+            <span style="font-size:11px;color:#334155;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 8px">
+              ${QSYM[s.quadra]} ${s.quadra}
+            </span>
+          </div>
         </div>
-        <div style="font-weight:900">${Math.round(p*100)}%</div>
+        <div style="font-weight:900">${p}%</div>
       </div>
       <div class="note" style="margin-top:8px">
         主導：<b>${s.lead}</b> ／ 創造：<b>${s.crea}</b><br/>
         価値：${s.values}
       </div>
       <div style="margin-top:10px;line-height:1.8">${s.oneLine}</div>
-      <div class="note" style="margin-top:10px">
-        詳細確認：上の「タイプ即時ビュー」「機能×情報要素」ボタンから、Model A をそのまま照合できます。
-      </div>
     `;
     resCards.appendChild(div);
   });
 }
-
-document.getElementById("btnRestart").addEventListener("click", ()=>location.reload());
 
 /* 初期化 */
 renderCurrent();
