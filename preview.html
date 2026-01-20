@@ -4,22 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
-  <!-- OGP -->
-  <meta property="og:title" content="Socionics 簡易診断">
-  <meta property="og:description" content="質問に答えるだけでソシオニクスタイプを推定します。">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utage-jpg.github.io/typing/">
-  <meta property="og:image" content="https://utage-jpg.github.io/typing/topimage_20260116.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-
-  <!-- X -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Socionics 簡易診断">
-  <meta name="twitter:description" content="質問に答えるだけでソシオニクスタイプを推定します。">
-  <meta name="twitter:image" content="https://utage-jpg.github.io/typing/topimage_20260116.png">
-
-  <title>Socionics Typing v2.2　</title>
+  <title>Socionics Typing v2.4</title>
   <meta name="theme-color" content="#ff4fd8" />
 
 <style>
@@ -165,11 +150,6 @@ html,body{
 }
 .rankItem b{font-weight:1200}
 .pct{font-weight:1200}
-.barMini{
-  width:120px;height:9px;border-radius:999px;overflow:hidden;border:1px solid var(--line);
-  background:rgba(10,20,40,.06);display:inline-block;vertical-align:middle;margin-left:10px
-}
-.barMini>span{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--hi),var(--hi2))}
 .hr{height:1px;background:var(--line);margin:8px 0}
 .small{font-size:12px;color:var(--muted);line-height:1.7}
 .hidden{display:none !important;}
@@ -181,22 +161,34 @@ html,body{
   font-size:12px;color:var(--ink);font-weight:1100;
 }
 
-/* 結果の簡易グラフ */
-.vizGrid{display:grid;gap:10px}
-.vizRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.vizRow b{font-weight:1200}
-.vizBar{flex:1;height:10px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:rgba(10,20,40,.06)}
-.vizBar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--hi),var(--hi2))}
-.vizPct{width:52px;text-align:right;font-weight:1200}
+/* Visualization grid for results */
+.vizGrid{display:grid;gap:8px}
+.vizRow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vizRow b{min-width:200px;display:inline-block;font-weight:800}
+.vizBar{flex:1;height:10px;border-radius:999px;background:rgba(10,20,40,.06);overflow:hidden;border:1px solid var(--line)}
+.vizBar i{display:block;height:100%;background:linear-gradient(90deg,var(--hi),var(--hi2));width:0}
+.vizPct{width:56px;text-align:right;font-weight:800;color:var(--muted)}
 
-.err{
-  border:1px solid rgba(239,68,68,.25);
-  background:rgba(239,68,68,.08);
-  border-radius:14px;
-  padding:10px 12px;
-  color:#7f1d1d;
-  font-size:12px;
-  line-height:1.7;
+/* Split bar for signed element scores */
+.vizBarSplit{
+  flex:1;height:14px;border-radius:8px;background:rgba(10,20,40,.06);overflow:hidden;border:1px solid var(--line);display:flex;align-items:center;
+  position:relative;
+}
+.vizBarSplit .neg{height:8px;background:linear-gradient(90deg,#f0c6ff,#ffd6f8);border-radius:6px 0 0 6px;}
+.vizBarSplit .pos{height:8px;background:linear-gradient(90deg,#bfe9ff,#39b8ff);border-radius:0 6px 6px 0;}
+.vizBarSplit .centerLine{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line);transform:translateX(-0.5px)}
+.vizBarSplit .barWrap{display:flex;width:100%;justify-content:center;align-items:center;padding:3px}
+
+/* small adjustments for result cards */
+.qbox .small b{font-weight:900}
+
+/* hide any catMapping completely */
+#catMapping{display:none !important;}
+
+/* small unobtrusive export link/button */
+.exportLink{
+  background:transparent;border:0;color:var(--muted);font-size:12px;padding:4px 6px;cursor:pointer;text-decoration:underline;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -207,7 +199,7 @@ html,body{
     <div class="brand">
       <div class="logo" aria-hidden="true"></div>
       <div>
-        <h1>Socionics Typing v2.1.1</h1>
+        <h1>Socionics Typing v2.4 </h1>
       </div>
     </div>
     <div class="actions">
@@ -231,6 +223,8 @@ html,body{
           <div class="qno" id="qNo">Q1</div>
           <div class="qtext" id="qText">—</div>
 
+          <div id="catMapping" class="small" style="opacity:.9"></div>
+
           <div class="scale5" id="scale5"></div>
           <div class="scale3" id="scale3" style="display:none"></div>
 
@@ -245,7 +239,13 @@ html,body{
       <div class="body" id="screenResult" style="display:none">
         <div class="qbox">
           <div class="small">結果（上位3タイプ）</div>
-          <div style="font-size:18px;font-weight:1200;margin-top:6px" id="resHeadline">—</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="font-size:18px;font-weight:1200;margin-top:6px" id="resHeadline">—</div>
+            <!-- unobtrusive export link -->
+            <div style="text-align:right">
+              <button id="btnExportData" class="exportLink" title="診断データをJSONとして保存（任意）">診断データを保存（任意）</button>
+            </div>
+          </div>
           <div class="hr"></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
             <button class="btn primary" id="btnRestart">最初から</button>
@@ -323,20 +323,9 @@ html,body{
 (() => {
   "use strict";
 
-  /* =========================================================
-     0) 安全起動（質問が出ない＝JS停止を可視化）
-     ========================================================= */
-  const bootError = document.getElementById("bootError");
-  function showBootError(e){
-    bootError.classList.remove("hidden");
-    bootError.textContent =
-      "起動時にエラーが発生しました。質問が表示されない原因はここです。\n\n" +
-      (e && (e.stack || e.message) ? (e.stack || e.message) : String(e));
-  }
-
-  /* =========================================================
-     1) タイプ・Model A
-     ========================================================= */
+  /* --------------------------
+     Core constants / models
+     -------------------------- */
   const TYPES=["ILE","SEI","ESE","LII","EIE","LSI","SLE","IEI","SEE","ILI","LIE","ESI","LSE","EII","IEE","SLI"];
   const ELEMENTS=["Te","Ti","Fe","Fi","Ne","Ni","Se","Si"];
 
@@ -366,235 +355,128 @@ html,body{
     LSE:["Te","Si","Fe","Ni","Fi","Ne","Ti","Se"],
     EII:["Fi","Ne","Ti","Se","Te","Si","Fe","Ni"]
   };
-  const DIM_BY_POS=["4","3","2","1","1","2","3","4"];
+
   const QUADRA_VALUES={
     Alpha:new Set(["Ne","Ti","Fe","Si"]),
     Beta :new Set(["Fe","Ni","Se","Ti"]),
     Gamma:new Set(["Fi","Te","Se","Ni"]),
     Delta:new Set(["Si","Te","Fi","Ne"])
   };
-　const DICH = {
-  // Socionicsの一般的な4軸
-  E: new Set(["ILE","ESE","EIE","SLE","SEE","LIE","LSE","IEE"]),
-  I: new Set(["LII","SEI","LSI","IEI","ESI","ILI","SLI","EII"]),
-  S: new Set(["SEI","ESE","LSI","SLE","SEE","ESI","LSE","SLI"]),
-  N: new Set(["ILE","LII","EIE","IEI","IEE","EII","LIE","ILI"]),
-  T: new Set(["ILE","LII","LSI","SLE","LIE","LSE","ILI","SLI"]), // 論理
-  F: new Set(["SEI","ESE","EIE","IEI","SEE","ESI","IEE","EII"]), // 倫理
-  J: new Set(["LII","ESE","EIE","LSI","ESI","LIE","LSE","EII"]), // 合理
-  P: new Set(["ILE","SEI","SLE","IEI","SEE","ILI","SLI","IEE"])  // 非合理
-};
 
-function sumSet(posterior, set){
-  let s=0; for(const t of set) s += (posterior[t]||0);
-  return s;
-}
-
-function factorizedFromDich(p){
-  // 4軸の周辺確率
-  const pE = sumSet(p, DICH.E);
-  const pS = sumSet(p, DICH.S);
-  const pT = sumSet(p, DICH.T);
-  const pJ = sumSet(p, DICH.J);
-
-  const w = {};
-  for(const t of TYPES){
-    const e = DICH.E.has(t) ? pE : (1-pE);
-    const s = DICH.S.has(t) ? pS : (1-pS);
-    const tt= DICH.T.has(t) ? pT : (1-pT);
-    const j = DICH.J.has(t) ? pJ : (1-pJ);
-    w[t] = Math.max(1e-12, e*s*tt*j);
-  }
-  return normalize(w);
-}
-
-function stabilizePosterior(posterior, step){
-  // 早い段階ほど「軸」を優先して整形、後半は弱める
-  const lam = step < 30 ? 0.28 : step < 45 ? 0.18 : 0.10;
-
-  const w = factorizedFromDich(posterior);
-  const out = {};
-  for(const t of TYPES){
-    out[t] = (1-lam)*(posterior[t]||0) + lam*(w[t]||0);
-  }
-  return normalize(out);
-}
-
-  const elementPos=(t,e)=>MODEL[t].indexOf(e);
-  const elementDim=(t,e)=>{
-    const p=elementPos(t,e);
-    if(p<0) return 2;
-    return parseInt(DIM_BY_POS[p],10);
+  const DICH = {
+    E: new Set(["ILE","ESE","EIE","SLE","SEE","LIE","LSE","IEE"]),
+    I: new Set(["LII","SEI","LSI","IEI","ESI","ILI","SLI","EII"]),
+    S: new Set(["SEI","ESE","LSI","SLE","SEE","ESI","LSE","SLI"]),
+    N: new Set(["ILE","LII","EIE","IEI","IEE","EII","LIE","ILI"]),
+    T: new Set(["ILE","LII","LSI","SLE","LIE","LSE","ILI","SLI"]),
+    F: new Set(["SEI","ESE","EIE","IEI","SEE","ESI","IEE","EII"]),
+    J: new Set(["LII","ESE","EIE","LSI","ESI","LIE","LSE","EII"]),
+    P: new Set(["ILE","SEI","SLE","IEI","SEE","ILI","SLI","IEE"])
   };
-  const isValued=(t,e)=>QUADRA_VALUES[QUADRA[t]].has(e);
-  const isSuggestive=(t,e)=>elementPos(t,e)===4;
-  const isMobilizing=(t,e)=>elementPos(t,e)===5;
 
-  /* =========================================================
-     2) GRM / Choice
-     ========================================================= */
+  /* --------------------------
+     Utility math
+     -------------------------- */
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
   const sigmoid=(x)=>1/(1+Math.exp(-x));
-  function grmCategoryProbs(theta, a, bs){
-    const Pge=[1];
-    for(let k=0;k<4;k++) Pge.push(sigmoid(a*(theta-bs[k])));
-    Pge.push(0);
-    const P=[];
-    for(let k=0;k<5;k++) P.push(Math.max(1e-12, Pge[k]-Pge[k+1]));
-    const s=P.reduce((x,y)=>x+y,0);
-    return P.map(x=>x/s);
+  function normalizeVec(obj){
+    const s = Object.values(obj).reduce((a,b)=>a+b,0) || 1;
+    const out={}; for(const k in obj) out[k]=obj[k]/s; return out;
   }
-  function choiceProbs(theta, a){
-    const pA=sigmoid(a*theta);
-    const neutral=0.22+0.28*Math.exp(-Math.abs(theta)*1.4);
-    const rest=Math.max(1e-9,1-neutral);
-    const A=rest*pA, B=rest*(1-pA);
-    const s=A+B+neutral;
-    return {A:A/s,N:neutral/s,B:B/s};
+  function entropy(probs){
+    let h=0;
+    for(const p of Object.values(probs||{})){
+      if(p<=0) continue;
+      h -= p*Math.log(p);
+    }
+    return h;
   }
+  const topN=(probs,n=3)=>Object.entries(probs).sort((a,b)=>b[1]-a[1]).slice(0,n);
 
-  /* =========================================================
-     3) BANK
-     ========================================================= */
-  const BANK=[];
-  function defaultParams(kind){
-    if(kind==="v") return {a:1.55, bs:[-1.2,-0.3,0.4,1.2]};
-    if(kind==="d") return {a:1.25, bs:[-1.3,-0.4,0.4,1.3]};
-    if(kind==="b") return {a:1.05, bs:[-1.1,-0.25,0.25,1.1]};
-    if(kind==="s") return {a:1.35, bs:[-1.25,-0.35,0.45,1.25]};
-    if(kind==="m") return {a:1.35, bs:[-1.25,-0.35,0.45,1.25]};
-    return {a:1.20, bs:[-1.2,-0.3,0.4,1.2]};
-  }
-  const addV=(e,text,dir=+1)=>{ const p=defaultParams("v"); BANK.push({kind:"v",element:e,dir,text,a:p.a,bs:p.bs});};
-  const addD=(e,text,dir=+1)=>{ const p=defaultParams("d"); BANK.push({kind:"d",element:e,dir,text,a:p.a,bs:p.bs});};
-  const addB=(text,wMap,dir=+1)=>{ const p=defaultParams("b"); BANK.push({kind:"b",element:null,dir,text,wMap,a:p.a,bs:p.bs});};
-  const addC=(pair,mapAB,a=1.75)=>{ BANK.push({kind:"c",element:null,pair,mapAB,a});};
-  const addS=(e,text,dir=+1)=>{ const p=defaultParams("s"); BANK.push({kind:"s",element:e,dir,text,a:p.a,bs:p.bs});};
-  const addM=(e,text,dir=+1)=>{ const p=defaultParams("m"); BANK.push({kind:"m",element:e,dir,text,a:p.a,bs:p.bs});};
+  /* --------------------------
+     QUESTIONS: id:1 replaced; id:45 removed
+     NOTE: QUESTIONS.length now drives progress display and iteration.
+     -------------------------- */
+  const QUESTIONS = [
+  {"id":1,"phase":1,"text":"集まりや飲み会の翌日は、一人で静かに回復する時間が必要になりやすい。","axis":"EI","axisDir":"I","element":null,"dimension":"none","weight":1.8},
+  {"id":2,"phase":1,"text":"仕事や課題で詰まったとき、誰かに話しながら整理する方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.8},
+  {"id":3,"phase":1,"text":"初対面の人が多い場では、自分から話しかける方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.8},
+  {"id":4,"phase":1,"text":"忙しい日は、相談や打ち合わせを入れて進めたい方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.8},
+  {"id":5,"phase":1,"text":"数か月続くチーム作業で、人と関わり続けるのはあまり負担になりません。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.8},
 
-  const V_POS={
-    Ne:["話が一つに固まると、別の切り口や例を足したくなります。","未経験でも「やってみたら面白そう」が先に立ちます。","選べる余地があるほど発想が出やすいです。","会話で相手の話を聞くほど、別の可能性が思い浮かびます。","アイデア出しでは、まず選択肢を増やす方が気持ちが乗ります。","規定路線に沿って考えるより、例外や別案の方が気になります。"],
-    Ni:["目の前の出来事から、少し先の展開を自然に想像してしまいます。","判断するとき、タイミングや流れを重視します。","少ない情報の中で急いで決めるより、一度寝かせて全体像を見たいです。","出来事の背景にある“流れ”をつい考えてしまいます。","短期の出来事より、長期の方向性を重視しがちです。","言語化できなくても「今じゃない」と感じることがあります。"],
-    Se:["迷っている場面では、“いったん決めて進める”方が健全だと思います。","必要なら、少し強めに言ってでも前に進めたいです。","交渉や勝負どころでは、主導権が重要だと感じます。","迷いがある状況でも、決断して前に進められます。","約束事において境界線（ここまでOK/NG）をはっきりさせたいです。","状況を動かすために、誰かが前に出ることは必要だと思います。"],
-    Si:["効率より先に、無理なく続けられる状態を整えたいです。","体調に影響するような小さな不快があると、先にそちらを改善したくなります。","予定を詰めすぎないよう、前もって調整したくなります。","ペース配分を作ると、全体が安定すると感じます。","生活や環境を整えると、精神も落ち着きます。","長く続く運用にするには、微調整が大事だと思います。"],
-    Ti:["言葉の意味がズレていると、まずそこを揃えたくなります。","「なんとなく」より「筋が通るか」を重視して判断します。","説明は、前提→論点→結論の形に整えたくなります。","複雑な話は、分類や定義づけで整理したくなります。","矛盾に気づくと放置できません。","枠組みがあると議論が進むと思います。"],
-    Te:["話が抽象的だと、数字・期限・手順に落として考えたくなります。","複数案があるなら、最短で成果が出る方法を探します。","評判より、実績や比較データを重視します。","情報を集めるとき、要点だけを抜いて意思決定を行いたいです","成果につながらない作業は早めに切り替えたいです。","具体的な段取りに落とせると安心します。"],
-    Fe:["場が静かすぎると、少しでも空気を動かしたくなります。","場のテンションに合わせて、反応やノリを合わせる方が自然です。","正しさより、場がうまく回るかを優先することがあります。","雰囲気が重いときは、空気を切り替えたくなります。","感情を言葉にして共有すると連携しやすいです。","場の温度が下がると、上げたくなります。"],
-    Fi:["人を見るとき、能力より誠実さや信頼を重視します。","人間関係の距離感が近すぎ/遠すぎる違和感が気になりやすいです。","相手との立場が違う場合でも、約束や筋を守るべきだと思います。","断る場面でも、信頼や誠実さを崩さない言い方を重視します。","相手との関係性を考えて、傷つけない言い方を選びます。","相手と自分の境界線を意識して、尊重したいです。"]
-  };
-  const V_NEG={
-    Ne:["アイデアを増やすより、早く一つに決めて進めたいです。","可能性の話より、「今すぐできること」を詰めたいです。","予定が決まっていない相談は苦手です。","別案を出すより、結論まで一直線に進めたいです。","余白があると落ち着かず、決めたくなります。","例外の案を考えるより標準手順を守るほうが安心です。"],
-    Ni:["先のことを考えすぎるより、今すぐ手を動かしたいです。","流れより、手順やチェックリストがある方が安心します。","長期の話が続くと、今の現実の話に戻したくなります。","雰囲気や兆しより、根拠がはっきりしている方が安心します。","タイミングより、今日できることを優先します。","先読みより、目の前の手順や実行の方が安心します。"],
-    Se:["強く出るより、揉めない形で合意を作りたいです。","押し切るより、相手が自然に納得するのを待ちたいです。","勝つ/負けるの空気が濃い場は疲れます。","緊張感がある場面では一歩引いて様子を見ます。","主導を取るより、調整役が楽です。","仕事において、対立関係を極端に避けるように意識しています。"],
-    Si:["快適さより、多少きつくても短期で達成したいです。","身の回りや体調の快適さより、スピードや達成を優先しがちです。","細かい調整は苦手で、まとめて片付けたいです。","居心地より、刺激や変化がある方が楽しいです。","ペース配分を工夫するより勢いで進めたいです。","多少の不快があっても、まず進める方を選びがちです。"],
-    Ti:["細かい整合性より、まず前に進む方を優先しがちです。","定義にこだわる議論は面倒に感じます。","筋より、結果が出るかを優先したいです。","枠組みより、その場で最適に対応したいです。","分類は後回しで、とにかく動きたいです。","物事における”矛盾”は気にしない方です。"],
-    Te:["効率より、納得感や関係性を優先したいです。","数字やKPI（業績評価）の話が続くと空気が乾く感じがします。","成果だけでなく、過程の意味を重視したいです。","結論より先に、まず話して温度感を合わせたいです。","比較より直感で選びたいです。","段取りを詰めるより、その場のノリや直感で決めたいです。"],
-    Fe:["感情表現が多い場は情報が多くて疲れます。","ノリより、淡々と本題を進めたいです。","感情を言葉にするより、淡々と本題だけ共有したいです。","飲みの場やパーティで盛り上げ役を期待されると負担です。","喜怒哀楽の感情の共有は必要最低限でいいと考えています。","感情的なリアクションを求められると困ります。"],
-    Fi:["関係性より、役割や成果で割り切る方が楽です。","気持ちを読むより、事実と条件を揃えたいです。","距離感を細かく気にするより、役割や条件で割り切りたいです。","少しドライでも、目的が達成できれば問題ないです。","チームワークにおいて信頼より合理性を優先します。","仕事やチームプレイにおいて個人的な感情は切り離したいです。"]
-  };
+  {"id":6,"phase":1,"text":"説明するときは、実際にあった話や具体例から話すことが多いです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.8},
+  {"id":7,"phase":1,"text":"旅行や企画を考えるとき、体験の雰囲気より「何をするか」を先に決めます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.8},
+  {"id":8,"phase":1,"text":"人の話を聞くとき、「それが何を示すか」より「何が起きたか」が印象に残ります。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.8},
+  {"id":9,"phase":1,"text":"仕事の指示は、狙いより手順を細かく伝える方です。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.8},
+  {"id":10,"phase":1,"text":"アイデアは、面白さよりも「実際に使えるか」で評価しがちです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.8},
 
-  const D_POS={
-    Te:["慣れない分野でも、比較表や手順化で“使える形”に落とせます。","急に成果や数字を求められても、現実的な案を出せます。","情報を集めるとき、要点を抜いて判断材料にまとめられます。","タスクの優先順位を状況に合わせて組み替えられます。"],
-    Ti:["複雑な話でも、前提と論点を整理して矛盾を見つけられます。","分類や定義づけで説明をシンプルにできます。","議論が迷走したとき、枠組みを作って立て直せます。","用語や前提のズレを検知して揃えられます。"],
-    Fe:["空気が荒れていても、温度を読んで落とし所を作れます。","相手の反応を見ながら、言い方やテンポを調整できます。","場が重くなったとき、雰囲気を切り替える働きかけができます。","ギクシャクした場の緊張を和らげられます。"],
-    Fi:["関係がこじれた時、境界線を保ちつつ修復の方針を作れます。","相手の立場が変わっても、距離感をうまく調整できます。","関係を壊さずに断る言い方を選べます。","長期の約束や役割を継続して維持できます。"],
-    Ne:["行き詰まりのとき、別解や例外パターンを複数出せます。","未知でも仮説を置いて探索を進められます。","会話が詰まったとき、話題の枝を増やして広げられます。","既存の要素を組み替えて別案を作れます。"],
-    Ni:["兆しから先回りして準備や方向転換ができます。","情報が多くても、流れの主題を整理して掴めます。","優先順位を“いまのタイミング”で調整できます。","リスクが顕在化する前に手を打てます。"],
-    Se:["抵抗があっても、必要なら押し切る実行ができます。","対立場面でも、自分の立場を保って交渉できます。","判断材料が不十分でも、実行に移す決断ができます。","プレッシャーがかかっても、行動計画を維持できます。"],
-    Si:["忙しくても、負担が破綻しないよう微調整できます。","居心地の差を言語化して改善提案できます。","ペースを整え、長く続く運用にできます。","負荷が高まったとき、回復や調整の手段を取れます。"]
-  };
-  const D_NEG={
-    Te:["実務の話になると、どう進めればいいか分からなくなりやすいです。","プロジェクトの段取りを詰めるのが苦手です。"],
-    Ti:["論理の突っ込みが来ると、頭が真っ白になりやすいです。","言葉の定義に自信が持てません。"],
-    Fe:["感情のやり取りが続くと、どう場を収めるか分からなくなります。","場の空気を読んで行動するのが負担です。"],
-    Fi:["人間関係のトラブルに、どう介入すればいいか分かりません。","人間関係の距離感の調整が苦手です。"],
-    Ne:["選択肢が増えると、かえって動けなくなります。","何においても未知の領域の分野は避けがちです。"],
-    Ni:["先読みを求められると、どう考えればいいか分からなくなります。","長い目で見ての流れを読むのが苦手です。"],
-    Se:["強く出る必要がある場面で、どう動けばいいか分からなくなります。","人間関係の対立はとても怖いです。"],
-    Si:["体調や快適さの調整を後回しにして、限界まで走りがちです。","部屋の室内環境の微調整が苦手です。"]
-  };
+  {"id":11,"phase":1,"text":"意見が割れたら、納得感より数字や根拠で決めたいです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+  {"id":12,"phase":1,"text":"人を評価するとき、人柄より成果・スキルを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+  {"id":13,"phase":1,"text":"注意するとき、言い方より正しさを優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+  {"id":14,"phase":1,"text":"議論中は、その場の雰囲気より話が論理的かが気になります。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+  {"id":15,"phase":1,"text":"チームでは、関係性より役割と成果を重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
 
-  const wMapFromYes=(yesTypes)=>Object.fromEntries(TYPES.map(t=>[t, yesTypes.includes(t)? +1 : -1]));
-  const B_ITEMS=[
-    {text:"人が多い場の後、元気が増えるというより“消耗して静かな時間が欲しくなる”ことが多いです。", wMap:wMapFromYes(["ILI","IEI","LII","EII","SLI","SEI","ILE","IEE"])},
-    {text:"新しい人間関係に飛び込むより、既にある関係を深める方が落ち着きます。", wMap:wMapFromYes(["EII","ESI","LSI","LII","SLI","ILI","SEI","IEI"])},
-    {text:"予定や段取りが固まってから動く方が安心です。", wMap:wMapFromYes(["LSE","LIE","ESE","EIE","LSI","LII","ESI","EII"])},
-    {text:"細かい計画より、状況を見ながら柔軟に変える方が得意です。", wMap:wMapFromYes(["ILE","IEE","SEI","SLI","SLE","SEE","IEI","ILI"])},
-    {text:"議論の場で、感情の納得より“筋が通っているか”を優先しがちです。", wMap:wMapFromYes(["LII","LSI","ILE","SLE","LSE","LIE","ILI","SLI"])},
-    {text:"正しさより、相手がどう感じるか（関係がどうなるか）を優先しがちです。", wMap:wMapFromYes(["EII","ESI","IEE","SEE","ESE","EIE","SEI","IEI"])},
-    {text:"議論は重くしすぎず、アイデアや冗談で軽快に回る方が好きです。", wMap:wMapFromYes(["ILE","SEI","ESE","LII"])},
-    {text:"集団で熱量を揃え、勢いを作って突破する空気にワクワクします。", wMap:wMapFromYes(["EIE","LSI","SLE","IEI"])},
-    {text:"目的と責任範囲が明確で、実利のある話が一番落ち着きます。", wMap:wMapFromYes(["SEE","ILI","LIE","ESI"])},
-    {text:"大きなドラマより、生活や環境を整えながらじわっと良くするのが好きです。", wMap:wMapFromYes(["SLI","IEE","LSE","EII"])},
- 　 {text:"一人で考える時間より、人と話しながら考える方がしっくり来ます。", wMap:wMapFromYes(["ILE","ESE","EIE","SEE","LIE","LSE","IEE","SEI"])},
- 　 {text:"刺激の多い環境より、落ち着いた環境の方が本来の調子が出ます。", wMap:wMapFromYes(["ILI","LII","LSI","SLI","EII","ESI","SEI","IEI"])},
-　  {text:"今どうするかより、『この先どうなっていくか』を考える方が自然です。", wMap:wMapFromYes(["ILE","IEE","IEI","ILI","LII","EII","EIE","LIE"])},
-　  {text:"将来の話より、今の現実や手応えの方が判断の軸になります。", wMap:wMapFromYes(["SEI","SLI","LSI","LSE","SLE","SEE","ESI","ESE"])},
-　  {text:"人の気持ちより、条件や仕組みがどうなっているかの方が気になります。", wMap:wMapFromYes(["LII","LSI","ILE","SLE","LSE","LIE","ILI","SLI"])},
-　  {text:"正しいかどうかより、相手がどう感じるかが気になります。", wMap:wMapFromYes(["EII","ESI","IEE","SEE","ESE","EIE","SEI","IEI"])},
-　  {text:"旅行や外出のときは、行き先や時間をある程度決めてから動く方が安心します。", wMap:wMapFromYes(["LSE","LIE","ESE","EIE","LSI","LII","ESI","EII"])},
-　  {text:"休日の予定は、細かく決めるより「その日の気分や流れ」で動く方が楽です。", wMap:wMapFromYes(["ILE","IEE","SEI","SLI","SLE","SEE","IEI","ILI"])},
-　  {text:"何かを計画するとき、細かい手順より「全体の方向性」を先に決めたいです。", wMap:wMapFromYes(["ILE","LIE","EIE","IEE","ILI","LII","EII","IEI"])},
-　  {text:"予定通りに進めるより、その場の状況を見てやり方を変える方が自然です。", wMap:wMapFromYes(["SEI","SLI","LSI","LSE","SLE","SEE","ESI","ESE"])},
-　  {text:"何かがうまくいった時、結果だけでなく「どういう流れでそうなったか」が気になります。", wMap:wMapFromYes(["IEI","ILI","EIE","ILE","EII","LII","IEE","LIE"])},
-　  {text:"取り組みの過程より、「最終的に何が得られたか」を重視します。", wMap:wMapFromYes(["SEE","SLE","ESI","LSI","LSE","SLI","SEI","ESE"])},
-　  {text:"人に勧められても、自分がしっくり来ないと選ばないことが多いです。", wMap:wMapFromYes(["EII","IEI","IEE","ILI","ESI","SEI","SLI","LII"])},
- 　 {text:"自分の気持ちを優先するというより、状況や条件を見て判断します。", wMap:wMapFromYes(["LSE","LIE","LSI","SLE","ESE","EIE","SEE","ILE"])}
+  {"id":16,"phase":1,"text":"締切前に迷ったとき、多少荒くても出す方です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.8},
+  {"id":17,"phase":1,"text":"トラブル時は、気持ちより原因と手順の整理を優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+  {"id":18,"phase":1,"text":"新しい企画は、面白そうかより実現できるかを先に見ます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.8},
+  {"id":19,"phase":1,"text":"一緒に働く人に求めるのは、性格の良さより仕事ができることです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+  {"id":20,"phase":1,"text":"会話では、気持ちの伝わりやすさより内容の正確さを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.8},
+
+  {"id":21,"phase":2,"text":"話し合いで案が1つに絞られていくと、「他の案も考えたい」と物足りなく感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
+  {"id":22,"phase":2,"text":"新しい話を聞くと、「もっと別の形もありそう」と自然に考えます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
+  {"id":23,"phase":2,"text":"選択肢が少ない状況は、少し窮屈に感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
+
+  {"id":24,"phase":2,"text":"出来事を見るとき、「この先どうなりそうか」を考えるのが自然です。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
+  {"id":25,"phase":2,"text":"決断するとき、「今かどうか」というタイミングを重視します。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
+  {"id":26,"phase":2,"text":"短期の成果より、長期の方向性の方が気になります。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
+
+  {"id":27,"phase":2,"text":"迷っている場面では、誰かが決めて前に進めると安心します。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
+  {"id":28,"phase":2,"text":"必要なら、少し強く言ってでも進めたいと思います。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
+  {"id":29,"phase":2,"text":"グループワークにおいて、主導権を握って動かす方が落ち着きます。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
+
+  {"id":30,"phase":2,"text":"環境や体調が整っていると、気持ちも安定します。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
+  {"id":31,"phase":2,"text":"無理のないペースで進められると安心します。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
+  {"id":32,"phase":2,"text":"小さな不快が続くと、集中しにくくなります。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
+
+  {"id":33,"phase":2,"text":"言葉やルールの意味が曖昧だと、まずはっきりさせたくなります。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
+  {"id":34,"phase":2,"text":"話を聞くとき、筋が通っているかが気になります。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
+  {"id":35,"phase":2,"text":"分類や整理ができると、頭がすっきりします。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
+
+  {"id":36,"phase":2,"text":"話が長くなると、「結局どうすればいいのか」を知りたくなります。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
+  {"id":37,"phase":2,"text":"実績や数字があると、安心して判断できます。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
+  {"id":38,"phase":2,"text":"成果につながらない作業は、早めに切り替えたいです。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
+
+  {"id":39,"phase":2,"text":"場が静かすぎると、自分から少し動かしたくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
+  {"id":40,"phase":2,"text":"感情を言葉にして共有できると、やりやすくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
+  {"id":41,"phase":2,"text":"雰囲気が重いと、変えたくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
+
+  {"id":42,"phase":2,"text":"人を見るとき、能力より誠実さが気になります。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":43,"phase":2,"text":"一対一において距離感が合わないと、居心地が悪くなります。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":44,"phase":2,"text":"友人に求める一番の条件は、約束や道理を守る人です。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":45,"phase":2,"text":"好意や信頼を向ける相手は、かなりはっきりと選んでいます。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+
+  {"id":46,"phase":3,"text":"話がごちゃごちゃしている場面で、考える前に「話を整理し直している」ことがあります。","axis":"TF","axisDir":"T","element":"Ti","dimension":"unconscious","weight":0.7},
+  {"id":47,"phase":3,"text":"場の雰囲気が重いとき、自然と「空気を和らげる行動」をしています。","axis":"TF","axisDir":"F","element":"Fe","dimension":"unconscious","weight":0.7},
+  {"id":48,"phase":3,"text":"迷っている人を見ると、つい「決断を後押しする言葉や行動」を取ってしまいます。","axis":"EI","axisDir":"E","element":"Se","dimension":"unconscious","weight":0.7},
+  {"id":49,"phase":3,"text":"初めての作業や役割でも、「どう動けばいいか」はあまり迷いません。","axis":"EI","axisDir":"E","element":"Te","dimension":"unconscious","weight":0.7},
+  {"id":50,"phase":3,"text":"人の話を聞くとき、内容よりも「流れ」や「タイミング」が先に気になります。","axis":"SN","axisDir":"N","element":"Ni","dimension":"unconscious","weight":0.7},
+
+  {"id":51,"phase":3,"text":"体調や気分が良くない日でも、「いつも通りできる作業や判断」は大きく崩れません。","axis":"SN","axisDir":"S","element":"Si","dimension":"stable","weight":0.7},
+  {"id":52,"phase":3,"text":"職場や環境が変わっても、自分のやり方や考え方はあまり変わりません。","axis":"SN","axisDir":"S","element":"Te","dimension":"stable","weight":0.7},
+  {"id":53,"phase":3,"text":"失敗したあとも、ガラッと手順を変えずだいたい同じやり方で対応します。","axis":"SN","axisDir":"S","element":"Te","dimension":"stable","weight":0.7},
+  {"id":54,"phase":3,"text":"忙しいときほど、自然と「自分の決まった動き方」で行動しています。","axis":"EI","axisDir":"E","element":"Se","dimension":"stable","weight":0.7},
+  {"id":55,"phase":3,"text":"状況が変わっても、同じ基準や考え方で判断しています。","axis":"TF","axisDir":"T","element":"Ti","dimension":"stable","weight":0.7},
+
+  {"id":56,"phase":3,"text":"仕事や作業の進め方について、「どういう手順でやっているか」を人に説明できます。","axis":"SN","axisDir":"S","element":"Te","dimension":"reproducible","weight":0.7},
+  {"id":57,"phase":3,"text":"話し合いで意見を出すとき、「なぜそう考えたか」を言葉で説明できます。","axis":"TF","axisDir":"T","element":"Ti","dimension":"reproducible","weight":0.7},
+  {"id":58,"phase":3,"text":"周りから、「それどうやってやってるの？」とやり方について教えを求められることがあります。","axis":"SN","axisDir":"S","element":"Te","dimension":"reproducible","weight":0.7},
+  {"id":59,"phase":3,"text":"自分の中で、「物事の考え方」「作業の進め方」の型がはっきりしています。","axis":"TF","axisDir":"T","element":"Ti","dimension":"reproducible","weight":0.7},
+  {"id":60,"phase":3,"text":"誰かに教えるとき、手順や考え方を順番に説明しています。","axis":"TF","axisDir":"F","element":"Fe","dimension":"reproducible","weight":0.7}
   ];
 
-  function mapByElements(favorA,favorB){
-    const setA=new Set(favorA), setB=new Set(favorB);
-    return (t)=>{
-      const lead=MODEL[t][0], crea=MODEL[t][1];
-      let s=0;
-      if(setA.has(lead)) s+=0.8;
-      if(setA.has(crea)) s+=0.45;
-      if(setB.has(lead)) s-=0.8;
-      if(setB.has(crea)) s-=0.45;
-      for(const e of QUADRA_VALUES[QUADRA[t]]){
-        if(setA.has(e)) s+=0.08;
-        if(setB.has(e)) s-=0.08;
-      }
-      return Math.max(-1, Math.min(1, s));
-    };
-  }
-  const C_ITEMS=[
-    {pair:{A:"（A）アイデアを増やしてから決めたい",B:"（B）早めに一つに決めて進めたい"}, map:mapByElements(["Ne"],["Te","Se","Ti"])},
-    {pair:{A:"（A）場の空気や気持ちを整えたい",B:"（B）結論と手順を優先したい"}, map:mapByElements(["Fe","Fi"],["Te","Ti"])},
-    {pair:{A:"（A）流れやタイミングを見て動きたい",B:"（B）今すぐ実行して前に進めたい"}, map:mapByElements(["Ni"],["Se","Te"])},
-    {pair:{A:"（A）揉めない合意を作りたい",B:"（B）必要なら押し切ってでも進めたい"}, map:mapByElements(["Fi","Fe"],["Se"])},
-    {pair:{A:"（A）快適さやペースを守って続けたい",B:"（B）多少きつくても短期で達成したい"}, map:mapByElements(["Si"],["Te","Se"])},
-    {pair:{A:"（A）定義や構造を揃えてから進めたい",B:"（B）現場で回しながら最適化したい"}, map:mapByElements(["Ti"],["Te","Se"])},
-    {pair:{A:"（A）関係の質（信頼）を最優先したい",B:"（B）成果（実利）を最優先したい"}, map:mapByElements(["Fi"],["Te"])},
-    {pair:{A:"（A）人の感情を言葉にして共有したい",B:"（B）感情より事実だけ共有したい"}, map:mapByElements(["Fe"],["Te","Ti"])},
-    {pair:{A:"（A）変化や刺激がある方が楽しい",B:"（B）安定して整っている方が楽しい"}, map:mapByElements(["Ne","Se"],["Si"])},
-    {pair:{A:"（A）“先の意味/方向”を掴みたい",B:"（B）“今の手順/実行”を掴みたい"}, map:mapByElements(["Ni"],["Te","Se"])},
-  ];
-
-  // ★質問フェーズでソシオ用語を匂わせない（暗示/動員の語を排除して日常表現へ）
-  const S_TEMPLATE=(e)=>`自分ひとりだと苦手になりやすいですが、得意な人がそばにいると一気に安心して伸びる分野があります。`;
-  const M_TEMPLATE=(e)=>`得意ではないのに、なぜか「頑張ればできるはず」と背伸びして挑みたくなる分野があります。`;
-
-  function buildBank(){
-    BANK.length=0;
-    for(const e of ELEMENTS){
-      (V_POS[e]||[]).forEach((t)=>addV(e,t,+1));
-      (V_NEG[e]||[]).forEach((t)=>addV(e,t,-1));
-    }
-    for(const e of ELEMENTS){
-      (D_POS[e]||[]).forEach((t)=>addD(e,t,+1));
-      (D_NEG[e]||[]).forEach((t)=>addD(e,t,-1));
-    }
-    for(const b of B_ITEMS) addB(b.text, b.wMap, +1);
-    for(const c of C_ITEMS) addC(c.pair, c.map, 1.75);
-    for(const e of ELEMENTS){
-      addS(e, S_TEMPLATE(e), +1);
-      addM(e, M_TEMPLATE(e), +1);
-    }
-  }
-
-  /* =========================================================
-     4) UIスケール
-     ========================================================= */
+  /* --------------------------
+     SCALE mapping (5-point)
+     -------------------------- */
   const SCALE5=[
     {label:"そう思う", v:+2, c:0},
     {label:"部分的にそう思う", v:+1, c:1},
@@ -602,93 +484,153 @@ function stabilizePosterior(posterior, step){
     {label:"あまりそう思わない", v:-1, c:3},
     {label:"全くそう思わない", v:-2, c:4},
   ];
-  const SCALE3=[
-    {label:"Aに近い", v:+1, k:"A"},
-    {label:"どちらでもない", v:0, k:"N"},
-    {label:"Bに近い", v:-1, k:"B"},
-  ];
 
-  /* =========================================================
-     5) 状態
-     ========================================================= */
-  const MIN_Q=40, TARGET_Q=60, MAX_Q=80;
-
-  const state={
-    step:0,
-    asked:[],
-    answers:[],
-    posterior:Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length])),
-    pending:null, pendingKind:null,
-
+  /* --------------------------
+     State
+     -------------------------- */
+  const state = {
+    step: 0,
+    asked: QUESTIONS.map((q,i)=>i),
+    answers: [],
+    posterior: Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length])),
+    quadra: {Alpha:0.25,Beta:0.25,Gamma:0.25,Delta:0.25},
+    axisScores: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
+    elementScores: Object.fromEntries(ELEMENTS.map(e=>[e,0])),
+    dimensionScores: {},
     respStats:{n:0, mean:0, m2:0, neutral:0, extreme:0},
-
     historyTop1:[],
+    historyTop1Pct:[],
     historyGap:[],
-    livePinned:false,
+    history: [],
+    isAdvancing:false,
+    livePinned:false
   };
 
-  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-  function normalize(obj){
-    const s=Object.values(obj).reduce((a,b)=>a+b,0)||1;
-    const out={}; for(const k in obj) out[k]=obj[k]/s;
-    return out;
+  /* --------------------------
+     UI elems
+     -------------------------- */
+  const elBarFill=document.getElementById("barFill");
+  const elProg=document.getElementById("progText");
+  const elQNo=document.getElementById("qNo");
+  const elQText=document.getElementById("qText");
+  const elScale5=document.getElementById("scale5");
+  const elScale3=document.getElementById("scale3");
+  const btnBack=document.getElementById("btnBack");
+  const btnSkip=document.getElementById("btnSkip");
+  const btnNext=document.getElementById("btnNext");
+  const screenQuiz=document.getElementById("screenQuiz");
+  const screenResult=document.getElementById("screenResult");
+  const topList=document.getElementById("topList");
+  const sideCard=document.getElementById("sideCard");
+  const btnToggleLive=document.getElementById("btnToggleLive");
+
+  function setProgress(){ elProg.textContent = `${state.step} / ${QUESTIONS.length}`; elBarFill.style.width = `${clamp(state.step/QUESTIONS.length,0,1)*100}%`; }
+
+  /* --------------------------
+     Existing helpers reused: stabilizePosterior, etc.
+     (kept from prior implementation)
+     -------------------------- */
+  function sumSet(posterior, set){
+    let s=0; for(const t of set) s += (posterior[t]||0);
+    return s;
   }
-  function entropy(probs){
-    let h=0;
-    for(const p of Object.values(probs)){
-      if(p<=0) continue;
-      h -= p*Math.log(p);
+  function factorizedFromDich(p){
+    const pE = sumSet(p, DICH.E);
+    const pS = sumSet(p, DICH.S);
+    const pT = sumSet(p, DICH.T);
+    const pJ = sumSet(p, DICH.J);
+    const w = {};
+    for(const t of TYPES){
+      const e = DICH.E.has(t) ? pE : (1-pE);
+      const s = DICH.S.has(t) ? pS : (1-pS);
+      const tt= DICH.T.has(t) ? pT : (1-pT);
+      const j = DICH.J.has(t) ? pJ : (1-pJ);
+      w[t] = Math.max(1e-12, e*s*tt*j);
     }
-    return h;
+    return normalizeVec(w);
   }
-  const topN=(probs,n=4)=>Object.entries(probs).sort((a,b)=>b[1]-a[1]).slice(0,n);
-  function gapTop2(probs){
-    const t=topN(probs,2);
-    if(t.length<2) return 1;
-    return t[0][1]-t[1][1];
+  function applyAxisSoftElimination(p, step){
+    if(step < 8) return p;
+    const pE = sumSet(p, DICH.E);
+    const pS = sumSet(p, DICH.S);
+    const pT = sumSet(p, DICH.T);
+    const confE = Math.abs(pE - 0.5) * 2;
+    const confS = Math.abs(pS - 0.5) * 2;
+    const confT = Math.abs(pT - 0.5) * 2;
+    const phase = step < 18 ? 0.55 : step < 30 ? 0.75 : 1.0;
+    const confStart = 0.55;
+    const strengthMax = 0.55;
+    function axisPenalty(conf){
+      if(conf <= confStart) return 1.0;
+      const x = (conf - confStart) / (1 - confStart);
+      const strength = Math.max(0, Math.min(1, x)) * strengthMax * phase;
+      return Math.exp(-strength);
+    }
+    const penE = axisPenalty(confE);
+    const penS = axisPenalty(confS);
+    const penT = axisPenalty(confT);
+    const out = {...p};
+    for(const t of TYPES){
+      let m = 1.0;
+      if(pE >= 0.5 && DICH.I.has(t)) m *= penE;
+      if(pE <  0.5 && DICH.E.has(t)) m *= penE;
+      if(pS >= 0.5 && DICH.N.has(t)) m *= penS;
+      if(pS <  0.5 && DICH.S.has(t)) m *= penS;
+      if(pT >= 0.5 && DICH.F.has(t)) m *= penT;
+      if(pT <  0.5 && DICH.T.has(t)) m *= penT;
+      out[t] = (out[t]||0) * m;
+    }
+    return normalizeVec(out);
+  }
+  function getStabilizeLam(step){ return step < 20 ? 0.30 : step < 40 ? 0.20 : 0.22; }
+  function stabilizePosterior(posterior, step){
+    const lam = getStabilizeLam(step);
+    const w = factorizedFromDich(posterior);
+    const mixed = {};
+    for(const t of TYPES) mixed[t] = (1-lam)*(posterior[t]||0) + lam*(w[t]||0);
+    const normed = normalizeVec(mixed);
+    const suppressed = applyAxisSoftElimination(normed, step);
+    return normalizeVec(suppressed);
   }
 
-  /* =========================================================
-     6) θ（タイプ×設問）
-     ========================================================= */
-  const dimToTheta={1:-0.95,2:-0.25,3:+0.45,4:+1.05};
-  function thetaFor(type,q){
-    if(q.kind==="v"){
-      const exp=isValued(type,q.element)? +1 : -1;
-      return 1.05 * exp * q.dir;
+  /* --------------------------
+     computeQuadraFromPosterior + sharpening utilities
+     -------------------------- */
+  function computeQuadraFromPosterior(posterior){
+    const quadra = {Alpha:0,Beta:0,Gamma:0,Delta:0};
+    for(const t of TYPES){
+      const q = QUADRA[t];
+      quadra[q] += (posterior[t] || 0);
     }
-    if(q.kind==="d"){
-      const dim=elementDim(type,q.element);
-      return 1.00 * (dimToTheta[dim]??0) * q.dir;
+    const s = quadra.Alpha + quadra.Beta + quadra.Gamma + quadra.Delta || 1;
+    quadra.Alpha /= s; quadra.Beta /= s; quadra.Gamma /= s; quadra.Delta /= s;
+    return quadra;
+  }
+  function sharpenDistribution(dist, k){
+    const powered = {};
+    for(const key of Object.keys(dist)){
+      powered[key] = Math.pow(Math.max(1e-12, dist[key]||0), k);
     }
-    if(q.kind==="b"){
-      const w=(q.wMap && (q.wMap[type]??0)) || 0;
-      return 0.80 * w * q.dir;
-    }
-    if(q.kind==="c"){
-      const s=q.mapAB? q.mapAB(type) : 0;
-      return clamp(1.00*s, -1, 1);
-    }
-    if(q.kind==="s"){
-      const e=q.element;
-      if(isSuggestive(type,e)) return +0.95 * q.dir;
-      if(isMobilizing(type,e)) return +0.25 * q.dir;
-      if(elementPos(type,e)===0 || elementPos(type,e)===1) return -0.35 * q.dir;
-      return -0.10 * q.dir;
-    }
-    if(q.kind==="m"){
-      const e=q.element;
-      if(isMobilizing(type,e)) return +0.95 * q.dir;
-      if(isSuggestive(type,e)) return +0.30 * q.dir;
-      if(elementPos(type,e)===0 || elementPos(type,e)===1) return -0.30 * q.dir;
-      return -0.08 * q.dir;
-    }
-    return 0;
+    return normalizeVec(powered);
+  }
+  function sharpenPosterior(posterior, k){
+    const out = {};
+    for(const t of TYPES) out[t] = Math.pow(Math.max(1e-12, posterior[t]||0), k);
+    return normalizeVec(out);
+  }
+  function getSharpenK(step){
+    const base = 1.0 + 1.5 * (step / (QUESTIONS.length - 1));
+    return clamp(base, 1.0, 2.5);
+  }
+  function top1Prob(posterior){
+    let best = 0;
+    for(const v of Object.values(posterior)) if(v > best) best = v;
+    return best || 0;
   }
 
-  /* =========================================================
-     7) 温度補正（回答癖）
-     ========================================================= */
+  /* --------------------------
+     Scoring and posterior recomputation (kept intact)
+     -------------------------- */
   function updateRespStatsLikert(raw){
     const s=state.respStats;
     s.n+=1;
@@ -696,360 +638,501 @@ function stabilizePosterior(posterior, step){
     s.mean+=delta/s.n;
     const delta2=raw-s.mean;
     s.m2+=delta*delta2;
-
     if(raw===0) s.neutral+=1;
     if(Math.abs(raw)===2) s.extreme+=1;
   }
-  function stdev(){
-    const s=state.respStats;
-    if(s.n<8) return 1.0;
-    const v=s.m2/(s.n-1);
-    return clamp(Math.sqrt(v), 0.55, 1.55);
-  }
-  function temperature(){
-    const s=state.respStats;
-    const sd=stdev();
-    const neutralRate = s.n>0 ? (s.neutral/s.n) : 0;
-    const extremeRate = s.n>0 ? (s.extreme/s.n) : 0;
-
-    let T=1.0;
-    if(neutralRate>0.48) T+=0.18;
-    if(extremeRate>0.62) T+=0.12;
-    if(sd<0.78) T+=0.12;
-    if(sd>1.22) T+=0.12;
-    return clamp(T, 0.85, 1.65);
-  }
+  function stdev(){ const s=state.respStats; if(s.n<8) return 1.0; const v=s.m2/(s.n-1); return clamp(Math.sqrt(v), 0.55, 1.55); }
+  function temperature(){ const s=state.respStats; const sd=stdev(); const neutralRate = s.n>0 ? (s.neutral/s.n) : 0; const extremeRate = s.n>0 ? (s.extreme/s.n) : 0; let T=1.0; if(neutralRate>0.48) T+=0.18; if(extremeRate>0.62) T+=0.12; if(sd<0.78) T+=0.12; if(sd>1.22) T+=0.12; return clamp(T, 0.85, 1.65); }
   const tempAdjustLike=(like)=>Math.pow(Math.max(1e-12, like), 1.0/temperature());
 
-  /* =========================================================
-     8) ベイズ更新
-     ========================================================= */
-  function bayesUpdateGRM(posterior,q,catIndex){
-    const out={};
+  function recomputePosteriorFromScores(stepForStabilize){
+    const valE = (state.axisScores.E || 0) - (state.axisScores.I || 0);
+    const valS = (state.axisScores.S || 0) - (state.axisScores.N || 0);
+    const valT = (state.axisScores.T || 0) - (state.axisScores.F || 0);
+    const valJ = (state.axisScores.J || 0) - (state.axisScores.P || 0);
+
+    const pE = sigmoid(valE * 0.4);
+    const pS = sigmoid(valS * 0.4);
+    const pT = sigmoid(valT * 0.4);
+    const pJ = sigmoid(valJ * 0.35);
+
+    let maxAbsElem = 0;
+    for(const e of ELEMENTS) maxAbsElem = Math.max(maxAbsElem, Math.abs(state.elementScores[e]||0));
+    const elemScale = maxAbsElem > 0 ? (1 / maxAbsElem) : 1;
+
+    const rawScores = {};
     for(const t of TYPES){
-      const prior=posterior[t];
-      const th=thetaFor(t,q);
-      const P=grmCategoryProbs(th,q.a,q.bs);
-      const like=tempAdjustLike(P[catIndex]||1e-12);
-      out[t]=prior*like;
+      let axisMatch = 0;
+      axisMatch += (DICH.E.has(t) ? pE : (1-pE));
+      axisMatch += (DICH.S.has(t) ? pS : (1-pS));
+      axisMatch += (DICH.T.has(t) ? pT : (1-pT));
+      axisMatch += (DICH.J.has(t) ? pJ : (1-pJ));
+      axisMatch = axisMatch / 4;
+
+      let dot = 0;
+      for(const e of ELEMENTS){
+        const pos = MODEL[t].indexOf(e);
+        const sign = (pos === 0 || pos === 1) ? +1 : -1;
+        dot += (state.elementScores[e]||0) * sign;
+      }
+      const elementScoreNorm = sigmoid(dot * 0.6 * elemScale);
+
+      const wAxis = 0.62;
+      const wElem = 0.34;
+      const wPrior = 0.04;
+      const combined = wAxis*axisMatch + wElem*elementScoreNorm + wPrior*(1/TYPES.length);
+      rawScores[t] = Math.max(1e-12, combined);
     }
-    return normalize(out);
-  }
-  function bayesUpdateChoice(posterior,q,choiceKey){
-    const out={};
-    for(const t of TYPES){
-      const prior=posterior[t];
-      const th=thetaFor(t,q);
-      const P=choiceProbs(th,q.a);
-      const like=tempAdjustLike(P[choiceKey]||1e-12);
-      out[t]=prior*like;
+
+    const posteriorRaw = normalizeVec(rawScores);
+    const stabilized = stabilizePosterior(posteriorRaw, stepForStabilize || state.step);
+    state.posterior = stabilized;
+
+    // compute quadra from posterior
+    const qRaw = computeQuadraFromPosterior(state.posterior);
+
+    // compute confidence and optionally mix toward top-type
+    const conf = top1Prob(state.posterior);
+    const topType = topN(state.posterior,1)[0] ? topN(state.posterior,1)[0][0] : null;
+    const qTop = {Alpha:0,Beta:0,Gamma:0,Delta:0};
+    if(topType) qTop[QUADRA[topType]] = 1;
+    const w = clamp((conf - 0.35) / 0.65, 0, 1);
+    const qMixed = {};
+    for(const k of Object.keys(qRaw)){
+      qMixed[k] = (1-w) * qRaw[k] + w * (qTop[k] || 0);
     }
-    return normalize(out);
-  }
+    const qMixNorm = normalizeVec(qMixed);
 
-  /* =========================================================
-     9) EIG + 次問選定（軽量化＆null保険）
-     ========================================================= */
-  const restrictToTopK=(posterior,K)=>{
-    const top=topN(posterior,K);
-    const keep=new Set(top.map(x=>x[0]));
-    const out={};
-    for(const t of TYPES) out[t]=keep.has(t)? posterior[t] : 0;
-    return normalize(out);
-  };
+    // sharpen quadra for display summary (k tuned later in renderViz as well)
+    const kQ = 1 + 6 * conf;
+    state.quadra = sharpenDistribution(qMixNorm, kQ);
 
-  function expectedEntropyAfter(q,posterior){
-    const H0=entropy(posterior);
-
-    if(q.kind==="c"){
-      const ans=["A","N","B"];
-      const Pa={A:0,N:0,B:0};
-      for(const t of TYPES){
-        const th=thetaFor(t,q);
-        const P=choiceProbs(th,q.a);
-        Pa.A+=posterior[t]*P.A;
-        Pa.N+=posterior[t]*P.N;
-        Pa.B+=posterior[t]*P.B;
-      }
-      const PaN=normalize(Pa);
-      let EH=0;
-      for(const k of ans){
-        const postK=bayesUpdateChoice(posterior,q,k);
-        EH+=(PaN[k]||0)*entropy(postK);
-      }
-      return {EIG:H0-EH,H0};
-    }else{
-      const Pa=[0,0,0,0,0];
-      for(const t of TYPES){
-        const th=thetaFor(t,q);
-        const P=grmCategoryProbs(th,q.a,q.bs);
-        for(let k=0;k<5;k++) Pa[k]+=posterior[t]*P[k];
-      }
-      const sum=Pa.reduce((a,b)=>a+b,0)||1;
-      const Pn=Pa.map(x=>x/sum);
-
-      let EH=0;
-      for(let k=0;k<5;k++){
-        const postK=bayesUpdateGRM(posterior,q,k);
-        EH+=(Pn[k]||0)*entropy(postK);
-      }
-      return {EIG:H0-EH,H0};
-    }
+    return stabilized;
   }
 
-  function pickNextQuestion(){
-    const used=new Set(state.asked);
-    const step=state.step;
+  /* --------------------------
+     History logging
+     -------------------------- */
+  function gapTop2(probs){
+    const t = topN(probs,2);
+    if(t.length<2) return 1;
+    return t[0][1]-t[1][1];
+  }
 
-    const allowChoice=(step>=28);
-    const wantChoice=(step>=42);
+  function recordHistory(optionalIdx){
+    const idx = (typeof optionalIdx === "number") ? optionalIdx : state.step;
+    const posterior = state.posterior || Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length]));
+    const top = topN(posterior,3).map(([t,p])=>({type:t, prob:p}));
+    while(top.length<3) top.push({type:"—", prob:0});
+    const gap = gapTop2(posterior);
+    const H = entropy(posterior);
 
-    // 候補収集
-    const candidates=[];
-    for(let i=0;i<BANK.length;i++){
-      if(used.has(i)) continue;
-      const q=BANK[i];
-      if(step<10 && q.kind==="b") continue;
-      if(!allowChoice && q.kind==="c") continue;
-      candidates.push(i);
+    const pE = sumSet(posterior, DICH.E);
+    const pI = sumSet(posterior, DICH.I);
+    const pS = sumSet(posterior, DICH.S);
+    const pN = sumSet(posterior, DICH.N);
+    const pT = sumSet(posterior, DICH.T);
+    const pF = sumSet(posterior, DICH.F);
+    const pJ = sumSet(posterior, DICH.J);
+    const pP = sumSet(posterior, DICH.P);
+
+    const quadra = state.quadra || computeQuadraFromPosterior(posterior);
+
+    const tempExp = getTemperingExponentForLogging(idx);
+    const lam = getStabilizeLam(idx);
+
+    // visual top progression uses sharpened display posterior
+    const k = getSharpenK(idx);
+    const displayP = sharpenPosterior(posterior, k);
+    const topEntry = topN(displayP,1)[0];
+    const topTypeName = topEntry ? topEntry[0] : "—";
+    const topPct = topEntry ? displayP[topEntry[0]] * 100 : 0;
+
+    state.historyTop1.push(topTypeName);
+    state.historyTop1Pct.push(Math.round(topPct * 10) / 10);
+
+    state.historyGap.push(gap);
+
+    state.history.push({
+      step: idx,
+      top3: top,
+      gap: gap,
+      entropy: H,
+      axes: {pE,pI,pS,pN,pT,pF,pJ,pP},
+      quadra: quadra,
+      tempExp: tempExp,
+      stabilizeLam: lam,
+      timestamp: Date.now()
+    });
+  }
+
+  function getTemperingExponentForLogging(step){
+    if(step < 12) return 0.85;
+    if(step < 30) return 0.92;
+    if(step < 45) return 0.90;
+    return 0.86;
+  }
+
+  /* --------------------------
+     Answer application (kept unchanged)
+     -------------------------- */
+  function applyResponse(ans, idx){
+    const q = QUESTIONS[ans.id];
+    if(!q) return;
+
+    if(ans.skipped){
+      recordHistory(idx);
+      return;
     }
-    if(!candidates.length) return null;
 
-    // 初回は確実に返す（起動失敗を防ぐ）
-    if(step===0) return candidates[0];
+    updateRespStatsLikert(ans.raw);
 
-    // 候補サンプリングで重さ回避
-    const SAMPLE_MAX=90;
-    let sample=candidates;
-    if(candidates.length>SAMPLE_MAX){
-      sample=[];
-      const pool=candidates.slice();
-      for(let k=0;k<SAMPLE_MAX;k++){
-        const r=(Math.random()*pool.length)|0;
-        sample.push(pool[r]);
-        pool[r]=pool[pool.length-1];
-        pool.pop();
-      }
-    }
-
-    const base=(step>=14)? restrictToTopK(state.posterior, 8) : state.posterior;
-    const focus=(step>=34)? restrictToTopK(state.posterior, 5) : base;
-
-    let bestId=sample[0], bestScore=-1e9;
-
-    for(const id of sample){
-      const q=BANK[id];
-
-      let pref=1.0;
-      if(wantChoice){
-        pref *= (q.kind==="c") ? 1.20 : 0.92;
+    if(q.axis){
+      const signed = ans.raw * q.weight;
+      const dir = q.axisDir;
+      if(q.axis === "EI"){
+        if(dir === "E"){ state.axisScores.E += signed; state.axisScores.I -= signed; }
+        else { state.axisScores.I += signed; state.axisScores.E -= signed; }
+      }else if(q.axis === "SN"){
+        if(dir === "S"){ state.axisScores.S += signed; state.axisScores.N -= signed; }
+        else { state.axisScores.N += signed; state.axisScores.S -= signed; }
+      }else if(q.axis === "TF" || q.axis === "FT"){
+        if(dir === "T"){ state.axisScores.T += signed; state.axisScores.F -= signed; }
+        else { state.axisScores.F += signed; state.axisScores.T -= signed; }
+      }else if(q.axis === "JP" || q.axis === "PJ"){
+        if(dir === "J"){ state.axisScores.J += signed; state.axisScores.P -= signed; }
+        else { state.axisScores.P += signed; state.axisScores.J -= signed; }
       }else{
-        if(q.kind==="c") pref*=0.86;
+        if(typeof q.axisDir === "string"){
+          const side = q.axisDir;
+          if(state.axisScores.hasOwnProperty(side)){
+            state.axisScores[side] += signed;
+            const oppositeMap = {E:"I",I:"E",S:"N",N:"S",T:"F",F:"T",J:"P",P:"J"};
+            const opp = oppositeMap[side];
+            if(opp) state.axisScores[opp] -= signed;
+          }
+        }
       }
-
-      // 暗示/動員の項目（内部）の比重は微増（質問文は日常表現）
-      if(step>=20 && (q.kind==="s" || q.kind==="m")) pref*=1.08;
-      if(step>=36 && (q.kind==="s" || q.kind==="m")) pref*=1.10;
-
-      let penalty=0;
-      if(q.element){
-        const cnt=state.answers.slice(0,step).filter(a=>a && !a.skipped && BANK[a.id].element===q.element).length;
-        penalty += cnt*0.07;
-      }
-      if(q.kind==="b") penalty += 0.12;
-
-      const {EIG}=expectedEntropyAfter(q, focus);
-      const score = pref*EIG - penalty;
-
-      if(score>bestScore){ bestScore=score; bestId=id; }
     }
-    return bestId;
+
+    if(q.element && q.element !== "RECAP"){
+      state.elementScores[q.element] = (state.elementScores[q.element]||0) + ans.raw * q.weight;
+      if(q.phase === 3 && q.dimension){
+        const key = `${q.element}::${q.dimension}`;
+        state.dimensionScores[key] = (state.dimensionScores[key]||0) + ans.raw * q.weight;
+      }
+    }
+
+    if(q.element === "RECAP"){
+      const elems = Object.entries(state.elementScores).sort((a,b)=>b[1]-a[1]);
+      const topElems = elems.slice(0,2).map(x=>x[0]).filter(Boolean);
+      for(const te of topElems){
+        state.elementScores[te] = (state.elementScores[te]||0) + ans.raw * q.weight * 1.2;
+      }
+    }
+
+    recomputePosteriorFromScores(idx);
+    recordHistory(idx);
   }
 
-  /* =========================================================
-     10) 動的停止（★60問未満で結果へ行かない）
-     ========================================================= */
-  function stopStatus(){
-    if(state.step < TARGET_Q) return {canStop:false};
-    return {canStop:true};
+  /* --------------------------
+     Recompute from start (used when going back)
+     -------------------------- */
+  function recomputeFromStart(){
+    state.posterior = Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length]));
+    state.quadra = computeQuadraFromPosterior(state.posterior);
+    state.axisScores = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+    state.elementScores = Object.fromEntries(ELEMENTS.map(e=>[e,0]));
+    state.dimensionScores = {};
+    state.respStats = {n:0, mean:0, m2:0, neutral:0, extreme:0};
+    state.historyTop1 = [];
+    state.historyTop1Pct = [];
+    state.historyGap = [];
+    state.history = [];
+
+    for(let i=0;i<state.step;i++){
+      const a = state.answers[i];
+      if(!a) continue;
+      applyResponse(a, i);
+    }
   }
 
-  /* =========================================================
-     11) UI
-     ========================================================= */
-  const elBarFill=document.getElementById("barFill");
-  const elProg=document.getElementById("progText");
-  const elQNo=document.getElementById("qNo");
-  const elQText=document.getElementById("qText");
-  const elScale5=document.getElementById("scale5");
-  const elScale3=document.getElementById("scale3");
-
-  const topList=document.getElementById("topList");
-
-  const btnBack=document.getElementById("btnBack");
-  const btnSkip=document.getElementById("btnSkip");
-  const btnNext=document.getElementById("btnNext");
-
-  const screenQuiz=document.getElementById("screenQuiz");
-  const screenResult=document.getElementById("screenResult");
-
-  const sideCard=document.getElementById("sideCard");
-  const btnToggleLive=document.getElementById("btnToggleLive");
-
-  function setProgress(){
-    elProg.textContent = `${state.step} / ${TARGET_Q}`;
-    elBarFill.style.width = `${clamp(state.step/TARGET_Q,0,1)*100}%`;
-  }
-
+  /* --------------------------
+     UI: scale rendering, question rendering
+     -------------------------- */
   function renderScale5(){
     elScale5.innerHTML="";
     SCALE5.forEach(s=>{
       const d=document.createElement("div");
       d.className="opt";
-      d.innerHTML=`<span class="dot"></span><span class="lab">${s.label}</span><span class="subv">${s.v>0?("+"+s.v):(""+s.v)}</span>`;
+      d.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="lab">${s.label}</span><span class="subv">${s.v>0?("+"+s.v):(""+s.v)}</span>`;
       d.addEventListener("click", ()=>{
+        if(state.isAdvancing) return;
         document.querySelectorAll("#scale5 .opt").forEach(x=>x.classList.remove("sel"));
         d.classList.add("sel");
-
-        const catFixed = 4 - s.c;
-        state.pending = {raw:s.v, cat:catFixed};
-        state.pendingKind="likert";
-        btnNext.disabled=false;
+        const id = state.asked[state.step];
+        const raw = s.v;
+        const ans = {id:id, raw: raw, skipped:false};
+        state.answers[state.step] = ans;
+        goNext(false);
       });
       elScale5.appendChild(d);
     });
   }
-  function renderScale3(){
-    elScale3.innerHTML="";
-    SCALE3.forEach(s=>{
-      const d=document.createElement("div");
-      d.className="opt";
-      d.innerHTML=`<span class="dot"></span><span class="lab">${s.label}</span>`;
-      d.addEventListener("click", ()=>{
-        document.querySelectorAll("#scale3 .opt").forEach(x=>x.classList.remove("sel"));
-        d.classList.add("sel");
-        state.pending = {key:s.k, v:s.v};
-        state.pendingKind="choice";
-        btnNext.disabled=false;
-      });
-      elScale3.appendChild(d);
-    });
+
+  function renderQuestion(){
+    if(state.step >= QUESTIONS.length){
+      showResult();
+      return;
+    }
+    const qIndex = state.asked[state.step];
+    const q = QUESTIONS[qIndex];
+
+    elQNo.textContent = `Q${state.step+1}`;
+    elQText.textContent = q.text || "（質問文が見つかりません）";
+    elScale3.style.display = "none";
+    elScale5.style.display = "grid";
+    renderScale5();
+
+    if(btnNext){ btnNext.style.display = "none"; btnNext.disabled = true; }
+
+    btnBack.disabled = (state.step === 0);
+
+    setProgress();
+    updateSide();
+
+    state.isAdvancing = false;
   }
 
+  /* --------------------------
+     updateSide - simplified: show only rank + type + quadra label (no % / no mini bar)
+     -------------------------- */
   function updateSide(){
     if(!state.livePinned) return;
-    const top=topN(state.posterior,4);
+    const k = getSharpenK(state.step);
+    const displayPosterior = sharpenPosterior(state.posterior, k);
+    const top = topN(displayPosterior,6);
     topList.innerHTML="";
-    top.forEach(([t,p])=>{
+    top.forEach(([t,p], idx)=>{
       const div=document.createElement("div");
       div.className="rankItem";
-      div.innerHTML=`<b>${t} <span style="opacity:.75;font-weight:1100">(${QSYM[QUADRA[t]]} ${QUADRA[t]})</span></b>
-                     <span class="pct">${Math.round(p*100)}% <span class="barMini"><span style="width:${clamp(p,0,1)*100}%"></span></span></span>`;
+      // Only show rank + type + (symbol & name)
+      div.innerHTML=`<b>${idx+1}位 ${t} <span style="opacity:.75;font-weight:1100">(${QSYM[QUADRA[t]]} ${QUADRA[t]})</span></b>`;
       topList.appendChild(div);
     });
   }
 
-  function renderQuestion(){
-    // 次問IDを確保
-    if(state.asked.length<=state.step){
-      let id=pickNextQuestion();
-      if(id==null) id=0; // 保険
-      state.asked.push(id);
-    }
-    const id=state.asked[state.step];
-    const q=BANK[id];
+  /* --------------------------
+     renderViz - unified implementation (keep only one)
+     - Elements: keep signed centered display (sum 0)
+     - Quadra: use state.quadra, sharpen for display with fixed k=3.2 then normalize and show as % with 1 decimal
+     -------------------------- */
+  function renderViz(topType){
+    const posterior = state.posterior || Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length]));
 
-    elQNo.textContent=`Q${state.step+1}`;
-
-    // UI切替
-    if(q.kind==="c"){
-      elQText.innerHTML=`<div style="margin-bottom:8px">${q.pair.A}</div><div style="opacity:.92">${q.pair.B}</div>`;
-      elScale5.style.display="none";
-      elScale3.style.display="grid";
-      renderScale3();
-    }else{
-      elQText.textContent=q.text || "（質問文が見つかりませんでした）";
-      elScale3.style.display="none";
-      elScale5.style.display="grid";
-      renderScale5();
-    }
-
-    state.pending=null;
-    btnNext.disabled=true;
-    btnBack.disabled=(state.step===0);
-
-    setProgress();
-    updateSide();
-  }
-
-  /* =========================================================
-     12) 回答・更新
-     ========================================================= */
-  function applyAnswer(){
-    const id=state.asked[state.step];
-    const q=BANK[id];
-    if(!state.pending) return;
-
-    if(q.kind==="c"){
-      const key=state.pending.key;
-      state.answers[state.step]={id,kind:q.kind,choiceKey:key,skipped:false};
-      state.posterior=bayesUpdateChoice(state.posterior,q,key);
-　　　state.posterior = stabilizePosterior(state.posterior, state.step);
-      return;
-    }
-
-    const raw=state.pending.raw;
-    updateRespStatsLikert(raw);
-
-    const cat=state.pending.cat;
-    state.answers[state.step]={id,kind:q.kind,raw,cat,skipped:false};
-    state.posterior=bayesUpdateGRM(state.posterior,q,cat);
-  }
-
-  function skipAnswer(){
-    const id=state.asked[state.step];
-    const q=BANK[id];
-    state.answers[state.step]={id,kind:q.kind,skipped:true};
-  }
-
-  function recordHistory(){
-    const top1=topN(state.posterior,1)[0]?.[0]||"—";
-    state.historyTop1.push(top1);
-    state.historyGap.push(gapTop2(state.posterior));
-  }
-
-  function recomputeFromStart(){
-    state.posterior=Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length]));
-    state.respStats={n:0,mean:0,m2:0,neutral:0,extreme:0};
-    state.historyTop1=[];
-    state.historyGap=[];
-
-    for(let i=0;i<state.step;i++){
-      const a=state.answers[i];
-      if(!a || a.skipped) continue;
-      const q=BANK[a.id];
-
-      if(q.kind==="c"){
-        state.posterior=bayesUpdateChoice(state.posterior,q,a.choiceKey);
-      }else{
-        updateRespStatsLikert(a.raw);
-        state.posterior=bayesUpdateGRM(state.posterior,q,a.cat);
+    // valuedProb computation (posterior-weighted)
+    const valuedProb = {};
+    for(const e of ELEMENTS){
+      let s = 0;
+      for(const t of TYPES){
+        if(QUADRA_VALUES[QUADRA[t]].has(e)) s += (posterior[t] || 0);
       }
-      recordHistory();
+      valuedProb[e] = clamp(s, 0, 1);
+    }
+
+    // center to -0.5..+0.5 then remove mean to force sum zero
+    const raw = {};
+    for(const e of ELEMENTS) raw[e] = valuedProb[e] - 0.5;
+    const mean = Object.values(raw).reduce((a,b)=>a+b,0)/ELEMENTS.length;
+    const centered = {};
+    for(const e of ELEMENTS) centered[e] = raw[e] - mean;
+
+    // scale to -50..+50 and round to 10-step
+    let maxAbs = Math.max(...Object.values(centered).map(Math.abs)) || 1;
+    const score10 = {};
+    for(const e of ELEMENTS){
+      const scaled = (centered[e]/maxAbs) * 50;
+      const step = Math.round(scaled / 10) * 10;
+      score10[e] = clamp(step, -50, 50);
+    }
+
+    // correct rounding residual so sum==0
+    const ssum = Object.values(score10).reduce((a,b)=>a+b,0);
+    if(ssum !== 0){
+      const maxElem = Object.entries(score10).reduce((acc,cur)=>{
+        if(!acc) return cur;
+        return Math.abs(cur[1]) > Math.abs(acc[1]) ? cur : acc;
+      }, null);
+      if(maxElem){
+        score10[maxElem[0]] = clamp(score10[maxElem[0]] - ssum, -50, 50);
+      }
+    }
+
+    // elementViz build
+    const el = document.getElementById("elementViz");
+    if(el){
+      el.innerHTML = ELEMENTS.map(e=>{
+        const val = score10[e];
+        const isValued = valuedProb[e] >= 0.5;
+        const labelVal = isValued ? "価値寄り" : "非価値寄り";
+        const pctText = (val>0?"+":"") + String(val) + "%";
+        const leftPct = val < 0 ? Math.abs(val) : 0;
+        const rightPct = val > 0 ? val : 0;
+        return `
+          <div class="vizRow">
+            <b>${e} <span style="font-weight:700;font-size:12px;color:var(--muted);">(${labelVal})</span></b>
+            <div class="vizBarSplit">
+              <div class="centerLine" aria-hidden="true"></div>
+              <div class="barWrap" style="width:100%;">
+                <div style="flex:1;display:flex;justify-content:flex-end;padding-right:4px">
+                  <div style="width:${leftPct}%;max-width:50%;"><div class="neg" style="width:100%"></div></div>
+                </div>
+                <div style="flex:1;display:flex;justify-content:flex-start;padding-left:4px">
+                  <div style="width:${rightPct}%;max-width:50%;"><div class="pos" style="width:100%"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="vizPct" style="width:80px;text-align:right">${pctText}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Quadra display: start from state.quadra, apply sharpenDistribution with k = 3.2, normalize, then show percentages (1 decimal)
+    const qRaw = state.quadra || computeQuadraFromPosterior(posterior);
+    const qSharp = sharpenDistribution(qRaw, 3.2); // fixed sharpening for visible bias
+    const qDisplay = normalizeVec(qSharp);
+
+    const qvEl = document.getElementById("quadraViz");
+    if(qvEl){
+      const order = ["Alpha","Beta","Gamma","Delta"];
+      qvEl.innerHTML = order.map(q=>{
+        const pct = (Math.round(clamp(qDisplay[q],0,1)*1000)/10).toFixed(1);
+        return `
+          <div class="vizRow">
+            <b>${QSYM[q]} ${q}</b>
+            <div class="vizBar"><i style="width:${pct}%"></i></div>
+            <div class="vizPct">${pct}%</div>
+          </div>
+        `;
+      }).join("");
     }
   }
 
+  /* --------------------------
+     Results display (kept UX but using display sharpening for headline)
+     -------------------------- */
+  function adjustDisplayPercentages(topRaw){
+    const mins=[60,20,1];
+    const maxs=[90,40,20];
+    const slots = topRaw.map(x=>x[1] || 0);
+    while(slots.length<3) slots.push(0);
+    const sum = slots.reduce((a,b)=>a+b,0) || 1;
+    let w = slots.map(s=>s/sum);
+
+    let remain = 100 - mins.reduce((a,b)=>a+b,0);
+    let alloc = mins.map((m,i)=> m + remain * w[i]);
+
+    for(let iter=0; iter<8; iter++){
+      let excess = 0;
+      const slack = [];
+      for(let i=0;i<3;i++){
+        if(alloc[i] > maxs[i]){ excess += alloc[i] - maxs[i]; alloc[i] = maxs[i]; }
+        else slack.push(i);
+      }
+      if(excess <= 1e-6) break;
+      if(slack.length===0) break;
+      const totalSlack = slack.reduce((s,i)=>s + (maxs[i]-alloc[i]),0) || 1;
+      for(const i of slack){
+        alloc[i] += (maxs[i]-alloc[i]) / totalSlack * excess;
+      }
+    }
+
+    const rounded = alloc.map(x=>Math.round(x));
+    let diff = 100 - rounded.reduce((a,b)=>a+b,0);
+    const order = [0,1,2];
+    for(let i=0;i<Math.abs(diff); i++){
+      const idx = order[i % order.length];
+      if(diff>0){
+        if(rounded[idx] < maxs[idx]) rounded[idx] += 1;
+        else {
+          for(const j of order) if(rounded[j] < maxs[j]) { rounded[j] += 1; break; }
+        }
+      }else{
+        if(rounded[idx] > mins[idx]) rounded[idx] -= 1;
+        else {
+          for(const j of order) if(rounded[j] > mins[j]) { rounded[j] -= 1; break; }
+        }
+      }
+    }
+    for(let i=0;i<3;i++) rounded[i] = Math.max(mins[i], Math.min(maxs[i], rounded[i]));
+    let ssum = rounded.reduce((a,b)=>a+b,0);
+    if(ssum !== 100) rounded[0] += 100 - ssum;
+    return rounded;
+  }
+
+  /* --------------------------
+     UI wiring & flow controls
+     -------------------------- */
+  if(btnNext){ btnNext.style.display = "none"; btnNext.disabled = true; }
+
+  btnSkip.addEventListener("click", ()=>{
+    if(state.isAdvancing) return;
+    document.querySelectorAll("#scale5 .opt, #scale3 .opt").forEach(x=>x.classList.remove("sel"));
+    const id = state.asked[state.step];
+    const ans = {id:id, raw:0, skipped:true};
+    state.answers[state.step] = ans;
+    goNext(true);
+  });
+
+  btnBack.addEventListener("click", ()=>{
+    if(state.isAdvancing) return;
+    goBack();
+  });
+
+  document.getElementById("btnRestart").addEventListener("click", ()=>location.reload());
+  document.getElementById("btnRestartTop").addEventListener("click", ()=>location.reload());
+
+  btnToggleLive.addEventListener("click", ()=>{ 
+    state.livePinned = !state.livePinned;
+    if(state.livePinned){ sideCard.classList.remove("hidden"); btnToggleLive.textContent="上位候補を非表示"; updateSide(); }
+    else { sideCard.classList.add("hidden"); btnToggleLive.textContent="上位候補を表示"; }
+  });
+
+  const btnToggleFeedback = document.getElementById("btnToggleFeedback");
+  const feedbackContent = document.getElementById("feedbackContent");
+  if(btnToggleFeedback && feedbackContent){
+    btnToggleFeedback.addEventListener("click", ()=>{
+      const open = feedbackContent.classList.contains("hidden");
+      if(open){ feedbackContent.classList.remove("hidden"); btnToggleFeedback.textContent="閉じる"; }
+      else { feedbackContent.classList.add("hidden"); btnToggleFeedback.textContent="開く"; }
+    });
+  }
+
+  /* --------------------------
+     Flow helpers
+     -------------------------- */
   function goNext(skipped=false){
-    if(!skipped && !state.pending) return;
+    if(state.isAdvancing) return;
+    state.isAdvancing = true;
 
-    if(skipped) skipAnswer();
-    else applyAnswer();
+    if(skipped){
+      const id = state.asked[state.step];
+      const ans = {id:id, raw:0, skipped:true};
+      state.answers[state.step] = ans;
+      applyResponse(ans, state.step);
+    }else{
+      const ans = state.answers[state.step];
+      if(!ans){
+        state.isAdvancing = false;
+        return;
+      }
+      applyResponse(ans, state.step);
+    }
 
-    recordHistory();
-    state.step+=1;
+    state.step += 1;
 
-    const st=stopStatus();
-    if(st.canStop || state.step>=MAX_Q){
+    if(state.step >= QUESTIONS.length){
       showResult();
       return;
     }
@@ -1058,21 +1141,126 @@ function stabilizePosterior(posterior, step){
 
   function goBack(){
     if(state.step<=0) return;
-    state.step-=1;
+    state.step -= 1;
     recomputeFromStart();
     renderQuestion();
   }
 
-  /* =========================================================
-     13) 結果 + フィードバック
-     ========================================================= */
+  function showResult(){
+    try{
+      recomputeFromStart();
+
+      screenQuiz.style.display = "none";
+      screenResult.style.display = "block";
+
+      const topRaw = topN(state.posterior,3);
+      while(topRaw.length<3) topRaw.push(["—",0]);
+
+      // For headline display we use a display-sharpened posterior
+      const kFinal = getSharpenK(state.step);
+      const displayP = sharpenPosterior(state.posterior, kFinal);
+      const displayForTop = topRaw.map(entry => [entry[0], displayP[entry[0]] || 0]);
+      const displayPcts = adjustDisplayPercentages(displayForTop);
+
+      const top3 = topRaw.map((entry,i)=> {
+        const t = entry[0];
+        return {type:t, displayPct: displayPcts[i]};
+      });
+
+      document.getElementById("resHeadline").textContent =
+        top3.map((e,idx)=>`${idx+1}位 ${e.type}（${e.displayPct}%）`).join(" / ");
+
+      const resCards=document.getElementById("resCards");
+      resCards.innerHTML = "";
+      top3.forEach((tp, idx)=>{
+        const t = tp.type;
+        const p = tp.displayPct;
+        const s = typeSummary(t);
+        const div = document.createElement("div");
+        div.className = "qbox";
+        div.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div>
+              <div class="small">${idx+1}位</div>
+              <div style="font-size:18px;font-weight:1200;margin-top:4px">${t}
+                <span style="font-size:11px;color:var(--muted);border:1px solid var(--line);background:rgba(10,20,40,.04);border-radius:999px;padding:4px 8px;margin-left:8px">
+                  ${QSYM[s.quadra]} ${s.quadra}
+                </span>
+              </div>
+            </div>
+            <div style="font-weight:1200">${p}%</div>
+          </div>
+          <div class="hr"></div>
+          <div class="small">
+            主導：<b style="color:var(--ink)">${s.lead}</b> ／ 創造：<b style="color:var(--ink)">${s.crea}</b><br/>
+            価値：${s.values}
+          </div>
+          <div style="margin-top:10px;line-height:1.9">${s.oneLine}</div>
+        `;
+        resCards.appendChild(div);
+      });
+
+      const topType = top3[0]?.type || topN(state.posterior,1)[0]?.[0] || "ILE";
+      renderViz(topType);
+      showFeedback(topType);
+      updateSide();
+
+      const exportBtn = document.getElementById("btnExportData");
+      if(exportBtn){
+        exportBtn.addEventListener("click", async ()=>{
+          const data = {
+            answers: state.answers,
+            history: state.history,
+            finalPosterior: state.posterior,
+            asked: state.asked,
+            historyTop1: state.historyTop1,
+            historyTop1Pct: state.historyTop1Pct,
+            metadata: {timestamp: new Date().toISOString(), stepCount: state.step, version: "v2.1.1-stable"}
+          };
+          const json = JSON.stringify(data, null, 2);
+          let didCopy = false;
+          try{
+            if(navigator.clipboard && navigator.clipboard.writeText){
+              await navigator.clipboard.writeText(json);
+              didCopy = true;
+            }
+          }catch(e){ didCopy = false; }
+          try{
+            const blob = new Blob([json], {type:"application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const pad=(n)=>String(n).padStart(2,"0");
+            const dt=new Date();
+            const filename = `socionics-diagnostic-${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}-${pad(dt.getHours())}${pad(dt.getMinutes())}${pad(dt.getSeconds())}.json`;
+            a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+          }catch(e){
+            const w = window.open("");
+            if(w) w.document.body.textContent = json;
+          }
+          const oldText = exportBtn.textContent;
+          exportBtn.textContent = didCopy ? "クリップボードにコピー済" : "保存しました";
+          setTimeout(()=>{ exportBtn.textContent = oldText; }, 2200);
+        }, {once:true});
+      }
+
+    }catch(e){
+      const be = document.getElementById("bootError");
+      if(be){ be.classList.remove("hidden"); be.textContent = String(e); }
+    }finally{
+      state.isAdvancing = false;
+    }
+  }
+
+  /* --------------------------
+     typeSummary & feedback helpers (kept)
+     -------------------------- */
   function typeSummary(t){
     const q=QUADRA[t];
     const lead=MODEL[t][0], crea=MODEL[t][1];
     const values=[...QUADRA_VALUES[q]].join("・");
-    const oneLine={
-      ILE:"好奇心旺盛で想像力に富む。刺激と変化。",
-      SEI:"快適さと空気を整え、自然体の関係を作る。調整と安定。",
+    const oneLine = {
+      ILE:"アイデアを広げ、体系化しながら論理を構築",
+      SEI:"快適さと空気を整え、調整と安定。",
       ESE:"雰囲気を温めつつ現実も回す。人を巻き込みながら整える。",
       LII:"概念の整理と整合性が強い。体系化・矛盾修正。",
       EIE:"流れの意味を掴み、感情表現で推進する。熱量と物語。",
@@ -1088,262 +1276,66 @@ function stabilizePosterior(posterior, step){
       IEE:"可能性と関係で新展開を作る。接続と発想。",
       SLI:"快適さと実務で無理なく最適化。静かな改善。"
     }[t]||"—";
-    return {quadra:q,lead,crea,values,oneLine};
-  }
-
-  const EL_JA={Te:"Te（実務/効率）",Ti:"Ti（構造/定義）",Fe:"Fe（場/表現）",Fi:"Fi（信頼/距離）",Ne:"Ne（可能性）",Ni:"Ni（流れ/意味）",Se:"Se（主導/圧）",Si:"Si（快適/調整）"};
-
-  function quadraBlurb(q){
-    return {
-      Alpha:"α（アルファ）：発想（Ne）と構造（Ti）を軸に、場の快さ（Si）や雰囲気（Fe）を回しやすい傾向。",
-      Beta :"β（ベータ）：熱量（Fe）と流れ（Ni）で意味づけし、主導（Se）と構造（Ti）で押し切る傾向。",
-      Gamma:"γ（ガンマ）：実利（Te）と関係の筋（Fi）を重視し、主導（Se）と先読み（Ni）で現実を動かす傾向。",
-      Delta:"Δ（デルタ）：暮らしの安定（Si）と実務（Te）を基盤に、信頼（Fi）と可能性（Ne）を育てる傾向。"
-    }[q] || "—";
-  }
-
-  // v設問の回答から「価値寄り度」を算出（簡易：vだけ使用）
-  function elementValueTendency(){
-    const pos=Object.fromEntries(ELEMENTS.map(e=>[e,{v:0,n:0}]));
-    for(let i=0;i<state.step;i++){
-      const a=state.answers[i];
-      if(!a || a.skipped) continue;
-      const q=BANK[a.id];
-      if(q.kind!=="v") continue;
-      const e=q.element;
-      const raw=a.raw ?? 0;
-      // 肯定（+）を価値寄りとして寄与、dirも含める
-      const aligned = raw * q.dir; // -2..+2
-      pos[e].v += aligned;
-      pos[e].n += 1;
-    }
-    // 0..1 に正規化（0.5が中立）
-    const out={};
-    for(const e of ELEMENTS){
-      const n=pos[e].n;
-      if(!n){ out[e]=0.5; continue; }
-      const avg = pos[e].v / (n*2); // -1..+1
-      out[e] = clamp((avg+1)/2, 0, 1); // 0..1
-    }
-    return out;
-  }
-
-  function renderViz(topType){
-    // 情報要素バー
-    const ev = elementValueTendency();
-    const el = document.getElementById("elementViz");
-    el.innerHTML = ELEMENTS.map(e=>{
-      const pct = Math.round(ev[e]*100);
-      const valued = isValued(topType, e);
-      return `
-        <div class="vizRow">
-          <b>${EL_JA[e]} ${valued ? "（valued）" : "（unvalued）"}</b>
-          <div class="vizBar"><i style="width:${pct}%"></i></div>
-          <div class="vizPct">${pct}%</div>
-        </div>
-      `;
-    }).join("");
-
-    // クアドラ割合（posteriorをクアドラで合算）
-    const qsum={Alpha:0,Beta:0,Gamma:0,Delta:0};
-    for(const t of TYPES) qsum[QUADRA[t]] += (state.posterior[t]||0);
-    const qv = document.getElementById("quadraViz");
-    qv.innerHTML = ["Alpha","Beta","Gamma","Delta"].map(q=>{
-      const pct = Math.round(clamp(qsum[q],0,1)*100);
-      return `
-        <div class="vizRow">
-          <b>${QSYM[q]} ${q}</b>
-          <div class="vizBar"><i style="width:${pct}%"></i></div>
-          <div class="vizPct">${pct}%</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function analyzeAnswersForType(type){
-    const agg={}, w={}, sm={S:{},M:{}};
-    ELEMENTS.forEach(e=>{agg[e]=0;w[e]=0; sm.S[e]=0; sm.M[e]=0;});
-
-    for(let i=0;i<state.step;i++){
-      const a=state.answers[i];
-      if(!a || a.skipped) continue;
-      const q=BANK[a.id];
-
-      if(q.kind==="c") continue;
-      if(!q.element) continue;
-
-      const e=q.element;
-      const resp=(a.raw ?? 0);
-      const respAligned = resp * q.dir;
-
-      // 期待符号（簡易）
-      let expSign=0;
-      if(q.kind==="v"){
-        expSign = (isValued(type,e)? +1 : -1) * q.dir;
-      }else if(q.kind==="d"){
-        const dim=elementDim(type,e);
-        const th=(dimToTheta[dim]??0);
-        expSign = Math.sign(th||0) * q.dir;
-      }else if(q.kind==="s"){
-        expSign = (isSuggestive(type,e)? +1 : -1) * q.dir;
-      }else if(q.kind==="m"){
-        expSign = (isMobilizing(type,e)? +1 : -1) * q.dir;
-      }
-
-      const score = (expSign===0) ? 0 : (respAligned * expSign);
-      const weight = (q.kind==="s" || q.kind==="m") ? 1.15 : (q.kind==="d" ? 1.05 : 1.0);
-
-      agg[e] += score * weight;
-      w[e] += Math.abs(respAligned) * weight + 0.6;
-
-      if(q.kind==="s") sm.S[e] += respAligned;
-      if(q.kind==="m") sm.M[e] += respAligned;
-    }
-
-    const norm={};
-    ELEMENTS.forEach(e=>{
-      norm[e] = (w[e] > 0) ? (agg[e]/w[e]) : 0;
-    });
-    return {norm, sm};
+    return {quadra:q, lead, crea, values, oneLine};
   }
 
   function showFeedback(topType){
-    const q=QUADRA[topType];
-    const values=[...QUADRA_VALUES[q]];
-    const {norm} = analyzeAnswersForType(topType);
+    try{
+      const fbQuadEl = document.getElementById("fbQuadra");
+      const fbValuesEl = document.getElementById("fbValues");
+      const fbStrongEl = document.getElementById("fbStrong");
+      const fbMismatchEl = document.getElementById("fbMismatch");
+      if(!fbQuadEl || !fbValuesEl || !fbStrongEl || !fbMismatchEl) return;
 
-    const strong = Object.entries(norm).sort((a,b)=>b[1]-a[1]).slice(0,3).filter(([_,v])=>v>0.12);
-    const mismatch = Object.entries(norm).sort((a,b)=>a[1]-b[1]).slice(0,5).filter(([_,v])=>v<-0.12);
-    const valuedMismatch = values.map(e=>[e, norm[e] ?? 0]).sort((a,b)=>a[1]-b[1]).filter(([_,v])=>v<-0.10).slice(0,2);
-
-    document.getElementById("fbQuadra").textContent = quadraBlurb(q);
-    document.getElementById("fbValues").innerHTML =
-      `このクアドラは <b>${values.map(e=>EL_JA[e]).join(" / ")}</b> を「意味がある情報」として扱いやすいです。<br>` +
-      `（1位：<b>${topType}</b>）`;
-
-    document.getElementById("fbStrong").innerHTML =
-      (strong.length===0)
-      ? "明確に強まった要素が少ない（=バランス型、または回答が控えめ）可能性があります。"
-      : "特に回答が「1位タイプに沿っていた」要素：<br>" +
-        strong.map(([e,v])=>`・<b>${EL_JA[e]}</b>（一致度：${v.toFixed(2)}）`).join("<br>");
-
-    let mismatchHtml="";
-    if(mismatch.length===0 && valuedMismatch.length===0){
-      mismatchHtml = "大きなズレは目立ちませんでした。";
-    }else{
-      const parts=[];
-      if(valuedMismatch.length){
-        parts.push("価値要素の中で、回答が逆方向に出やすかった点：<br>" +
-          valuedMismatch.map(([e,v])=>`・<b>${EL_JA[e]}</b>（ズレ：${v.toFixed(2)}）`).join("<br>")
-        );
+      const q = QUADRA[topType];
+      const values = [...QUADRA_VALUES[q]];
+      const posterior = state.posterior || Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length]));
+      const valuedProb = {};
+      for(const e of ELEMENTS){
+        let s = 0;
+        for(const t of TYPES){
+          if(QUADRA_VALUES[QUADRA[t]].has(e)) s += (posterior[t] || 0);
+        }
+        valuedProb[e] = +(s.toFixed(2));
       }
-      if(mismatch.length){
-        parts.push("全体でズレが大きい要素（※状況要因やサブタイプで起きやすい）：<br>" +
-          mismatch.map(([e,v])=>`・<b>${EL_JA[e]}</b>（ズレ：${v.toFixed(2)}）`).join("<br>")
-        );
-      }
-      mismatchHtml = parts.join("<br><br>");
+      const norm = valuedProb;
+      const strong = Object.entries(norm).sort((a,b)=>b[1]-a[1]).slice(0,3).filter(([_,v])=>v>0.62);
+      const mismatch = Object.entries(norm).sort((a,b)=>a[1]-b[1]).slice(0,5).filter(([_,v])=>v<0.38);
+
+      fbQuadEl.textContent = `このクアドラは ${q} の傾向があります。`;
+      fbValuesEl.innerHTML = `このクアドラは <b>${values.map(e=>e).join(" / ")}</b> を扱いやすい傾向です。`;
+
+      fbStrongEl.innerHTML =
+        (strong.length===0)
+        ? "明確に強まった要素は見られません。"
+        : "特に一致していた要素：<br>" +
+          strong.map(([e,v])=>`・<b>${e}</b>（${v}）`).join("<br>");
+
+      fbMismatchEl.innerHTML =
+        (mismatch.length===0)
+        ? "目立ったズレはありませんでした。"
+        : "ズレが見られた要素：<br>" + mismatch.map(([e,v])=>`・<b>${e}</b>（${v}）`).join("<br>");
+    }catch(e){
+      // defensive
     }
-    document.getElementById("fbMismatch").innerHTML = mismatchHtml;
   }
 
-  function showResult(){
-    recomputeFromStart();
-
-    screenQuiz.style.display="none";
-    screenResult.style.display="block";
-
-    const top3=topN(state.posterior,3).map(([t,p])=>[t,Math.round(p*1000)/10]);
-    document.getElementById("resHeadline").textContent =
-      top3.map(([t,p],i)=>`${i+1}位 ${t}（${p}%）`).join(" / ");
-
-    const resCards=document.getElementById("resCards");
-    resCards.innerHTML="";
-    top3.forEach(([t,p],idx)=>{
-      const s=typeSummary(t);
-      const div=document.createElement("div");
-      div.className="qbox";
-      div.innerHTML=`
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <div>
-            <div class="small">${idx+1}位</div>
-            <div style="font-size:18px;font-weight:1200;margin-top:4px">${t}
-              <span style="font-size:11px;color:var(--muted);border:1px solid var(--line);background:rgba(10,20,40,.04);border-radius:999px;padding:4px 8px;margin-left:8px">
-                ${QSYM[s.quadra]} ${s.quadra}
-              </span>
-            </div>
-          </div>
-          <div style="font-weight:1200">${p}%</div>
-        </div>
-        <div class="hr"></div>
-        <div class="small">
-          主導：<b style="color:var(--ink)">${s.lead}</b> ／ 創造：<b style="color:var(--ink)">${s.crea}</b><br/>
-          価値：${s.values}
-        </div>
-        <div style="margin-top:10px;line-height:1.9">${s.oneLine}</div>
-      `;
-      resCards.appendChild(div);
-    });
-
-    const topType = top3[0]?.[0] || topN(state.posterior,1)[0]?.[0] || "ILE";
-    renderViz(topType);
-    showFeedback(topType);
-    updateSide();
-  }
-
-  /* =========================================================
-     14) 操作
-     ========================================================= */
-  btnNext.addEventListener("click", ()=>goNext(false));
-  btnSkip.addEventListener("click", ()=>{ state.pending=null; btnNext.disabled=true; goNext(true); });
-  btnBack.addEventListener("click", goBack);
-
-  document.getElementById("btnRestart").addEventListener("click", ()=>location.reload());
-  document.getElementById("btnRestartTop").addEventListener("click", ()=>location.reload());
-
-  btnToggleLive.addEventListener("click", ()=>{
-    state.livePinned = !state.livePinned;
-    if(state.livePinned){
-      sideCard.classList.remove("hidden");
-      btnToggleLive.textContent="上位候補を非表示";
-      updateSide();
-    }else{
-      sideCard.classList.add("hidden");
-      btnToggleLive.textContent="上位候補を表示";
-    }
-  });
-
-  const btnToggleFeedback = document.getElementById("btnToggleFeedback");
-  const feedbackContent = document.getElementById("feedbackContent");
-  btnToggleFeedback.addEventListener("click", ()=>{
-    const open = feedbackContent.classList.contains("hidden");
-    if(open){
-      feedbackContent.classList.remove("hidden");
-      btnToggleFeedback.textContent="閉じる";
-    }else{
-      feedbackContent.classList.add("hidden");
-      btnToggleFeedback.textContent="開く";
-    }
-  });
-
-  /* =========================================================
-     start（★ここで必ず初期化→質問表示）
-     ========================================================= */
+  /* --------------------------
+     Startup
+     -------------------------- */
   function boot(){
-    buildBank();
-    if(!BANK.length) throw new Error("BANKが空です（buildBankが失敗しています）");
+    state.posterior = Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length]));
+    state.quadra = computeQuadraFromPosterior(state.posterior);
     renderQuestion();
   }
 
-  try{
-    boot();
-  }catch(e){
-    showBootError(e);
+  try{ boot(); }catch(e){
+    const be=document.getElementById("bootError");
+    if(be){ be.classList.remove("hidden"); be.textContent = String(e); }
   }
 
 })();
 </script>
 </body>
 </html>
-
 
