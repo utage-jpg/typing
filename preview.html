@@ -374,6 +374,9 @@ html,body{
     P: new Set(["ILE","SEI","SLE","IEI","SEE","ILI","SLI","IEE"])
   };
 
+  const POS_W   = [1.00, 0.80, 0.25, 0.40, 0.25, 0.40, 0.20, 0.15];
+  const VAL_SIGN = [+1, +1, -1, -1, +1, +1, -1, -1];
+
   /* --------------------------
      Utility math
      -------------------------- */
@@ -398,29 +401,29 @@ html,body{
      NOTE: QUESTIONS.length now drives progress display and iteration.
      -------------------------- */
   const QUESTIONS = [
-  {"id":1,"phase":1,"text":"集まりや飲み会の翌日は、一人で静かに回復する時間が必要になりやすいです。","axis":"EI","axisDir":"I","element":null,"dimension":"none","weight":1.3},
-  {"id":2,"phase":1,"text":"仕事や課題で詰まったとき、誰かに話しながら整理する方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.3},
-  {"id":3,"phase":1,"text":"初対面の人が多い場では、自分から話しかける方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.3},
-  {"id":4,"phase":1,"text":"忙しい日は、相談や打ち合わせを入れて進めたい方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.3},
-  {"id":5,"phase":1,"text":"数か月続くチーム作業で、人と関わり続けるのはあまり負担になりません。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.3},
+  {"id":1,"phase":1,"text":"集まりや飲み会の翌日は、一人で静かに回復する時間が必要になりやすいです。","axis":"EI","axisDir":"I","element":null,"dimension":"none","weight":1.2},
+  {"id":2,"phase":1,"text":"仕事や課題で詰まったとき、誰かに話しながら整理する方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":3,"phase":1,"text":"初対面の人が多い場では、自分から話しかける方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":4,"phase":1,"text":"忙しい日は、相談や打ち合わせを入れて進めたい方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":5,"phase":1,"text":"数か月続くチーム作業で、人と関わり続けるのはあまり負担になりません。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
 
-  {"id":6,"phase":1,"text":"説明するときは、実際にあった話や具体例から話すことが多いです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.3},
-  {"id":7,"phase":1,"text":"旅行や企画を考えるとき、体験の雰囲気より「何をするか」を先に決めます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.3},
-  {"id":8,"phase":1,"text":"人の話を聞くとき、「それが何を示すか」より「何が起きたか」が印象に残ります。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.3},
-  {"id":9,"phase":1,"text":"仕事の指示は、狙いより手順を細かく伝える方です。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.3},
-  {"id":10,"phase":1,"text":"アイデアは、面白さよりも「実際に使えるか」で評価しがちです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.3},
+  {"id":6,"phase":1,"text":"説明するときは、実際にあった話や具体例から話すことが多いです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":7,"phase":1,"text":"旅行や企画を考えるとき、体験の雰囲気より「何をするか」を先に決めます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":8,"phase":1,"text":"人の話を聞くとき、「それが何を示すか」より「何が起きたか」が印象に残ります。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":9,"phase":1,"text":"仕事の指示は、狙いより手順を細かく伝える方です。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":10,"phase":1,"text":"アイデアは、面白さよりも「実際に使えるか」で評価しがちです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
 
-  {"id":11,"phase":1,"text":"意見が割れたら、納得感より数字や根拠で決めたいです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.1},
-  {"id":12,"phase":1,"text":"人を評価するとき、人柄より成果・スキルを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.1},
-  {"id":13,"phase":1,"text":"注意するとき、言い方より正しさを優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.7},
-  {"id":14,"phase":1,"text":"議論中は、その場の雰囲気より話が論理的かが気になります。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.3},
-  {"id":15,"phase":1,"text":"チームでは、関係性より役割と成果を重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.3},
+  {"id":11,"phase":1,"text":"意見が割れたら、納得感より数字や根拠で決めたいです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":12,"phase":1,"text":"人を評価するとき、人柄より成果・スキルを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":13,"phase":1,"text":"注意するとき、言い方より正しさを優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.5},
+  {"id":14,"phase":1,"text":"議論中は、その場の雰囲気より話が論理的かが気になります。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":15,"phase":1,"text":"チームでは、関係性より役割と成果を重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
 
-  {"id":16,"phase":1,"text":"締切前に迷ったとき、多少荒くても出す方です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.3},
-  {"id":17,"phase":1,"text":"トラブル時は、気持ちの整理より原因と手順の整理を優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.3},
-  {"id":18,"phase":1,"text":"新しい企画は、面白そうかより実現できるかを先に見ます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.3},
-  {"id":19,"phase":1,"text":"一緒に働く人に求めるのは、性格の良さより仕事ができることです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.3},
-  {"id":20,"phase":1,"text":"会話では、気持ちの伝わりやすさより内容の正確さを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.3},
+  {"id":16,"phase":1,"text":"締切前に迷ったとき、多少荒くても出す方です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
+  {"id":17,"phase":1,"text":"トラブルが起きたときは、まず状況を整理して「どう対処するか」を決めてから動きたいです。","axis":"JP","axisDir":"J","element":null,"dimension":"none","weight":1.2},
+  {"id":18,"phase":1,"text":"新しいことに取り組むとき、細かく決めてからよりも、走りながら考える方が合っています。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
+  {"id":19,"phase":1,"text":"仕事では、やるべきことを先に決めて、計画通りに進めたい方です。","axis":"JP","axisDir":"J","element":null,"dimension":"none","weight":1.2},
+  {"id":20,"phase":1,"text":"会話や打ち合わせでは、結論を急がず、流れの中で自然に決まっていく方が楽です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
 
   {"id":21,"phase":2,"text":"話し合いで案が1つに絞られていくと、「他の案も考えたい」と物足りなく感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
   {"id":22,"phase":2,"text":"新しい話を聞くと、「もっと別の形もありそう」と自然に考えます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
@@ -455,23 +458,25 @@ html,body{
   {"id":44,"phase":2,"text":"友人に求める一番の条件は、約束や道理を守る人です。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
   {"id":45,"phase":2,"text":"好意や信頼を向ける相手は、かなりはっきりと選んでいます。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
 
-  {"id":46,"phase":3,"text":"話がごちゃごちゃしている場面で、考える前に「話を整理し直している」ことがあります。","axis":"TF","axisDir":"T","element":"Ti","dimension":"unconscious","weight":0.7},
-  {"id":47,"phase":3,"text":"場の雰囲気が重いとき、自然と「空気を和らげる行動」をしています。","axis":"TF","axisDir":"F","element":"Fe","dimension":"unconscious","weight":0.7},
-  {"id":48,"phase":3,"text":"迷っている人を見ると、つい「決断を後押しする言葉や行動」を取ってしまいます。","axis":"EI","axisDir":"E","element":"Se","dimension":"unconscious","weight":0.7},
-  {"id":49,"phase":3,"text":"初めての作業や役割でも、「どう動けばいいか」はあまり迷いません。","axis":"EI","axisDir":"E","element":"Te","dimension":"unconscious","weight":0.7},
-  {"id":50,"phase":3,"text":"人の話を聞くとき、内容よりも「流れ」や「タイミング」が先に気になります。","axis":"SN","axisDir":"N","element":"Ni","dimension":"unconscious","weight":0.7},
+  {"id":46,"phase":3,"text":"話がごちゃごちゃしている場面で、考える前に「話を整理し直している」ことがあります。","axis":"TF","axisDir":"T","element":"Ti","dimension":"unconscious","weight":0.8},
+  {"id":47,"phase":3,"text":"場の雰囲気が重いとき、自然と「空気を和らげる行動」をしています。","axis":"TF","axisDir":"F","element":"Fe","dimension":"unconscious","weight":0.8},
+  {"id":48,"phase":3,"text":"迷っている人を見ると、つい「決断を後押しする言葉や行動」を取ってしまいます。","axis":"EI","axisDir":"E","element":"Se","dimension":"unconscious","weight":0.8},
+  {"id":49,"phase":3,"text":"初めての作業や役割でも、「どう動けばいいか」はあまり迷いません。","axis":null,"axisDir":null,"element":"Te","dimension":"unconscious","weight":0.8},
+  {"id":50,"phase":3,"text":"人の話を聞くとき、内容よりも「流れ」や「タイミング」が先に気になります。","axis":"SN","axisDir":"N","element":"Ni","dimension":"unconscious","weight":0.8},
 
-  {"id":51,"phase":3,"text":"体調や気分が良くない日でも、「いつも通りできる作業や判断」は大きく崩れません。","axis":"SN","axisDir":"S","element":"Si","dimension":"stable","weight":0.7},
-  {"id":52,"phase":3,"text":"職場や環境が変わっても、自分のやり方や考え方はあまり変わりません。","axis":"SN","axisDir":"S","element":"Te","dimension":"stable","weight":0.7},
-  {"id":53,"phase":3,"text":"失敗したあとも、ガラッと手順を変えずだいたい同じやり方で対応します。","axis":"SN","axisDir":"S","element":"Te","dimension":"stable","weight":0.7},
-  {"id":54,"phase":3,"text":"忙しいときほど、自然と「自分の決まった動き方」で行動しています。","axis":"EI","axisDir":"E","element":"Se","dimension":"stable","weight":0.7},
-  {"id":55,"phase":3,"text":"状況が変わっても、同じ基準や考え方で判断しています。","axis":"TF","axisDir":"T","element":"Ti","dimension":"stable","weight":0.7},
+  {"id":51,"phase":3,"text":"体調や気分が良くない日でも、「いつも通りできる作業や判断」は大きく崩れません。","axis":null,"axisDir":null,"element":"Si","dimension":"stable","weight":0.8},
+  {"id":52,"phase":3,"text":"職場や環境が変わっても、自分のやり方や考え方はあまり変わりません。","axis":null,"axisDir":null,"element":"Ti","dimension":"stable","weight":0.8},
+  {"id":53,"phase":3,"text":"失敗したあとも、ガラッと手順を変えずだいたい同じやり方で対応します。","axis":null,"axisDir":null,"element":"Te","dimension":"stable","weight":0.8},
+  {"id":54,"phase":3,"text":"忙しいときほど、自然と「自分の決まった動き方」で行動しています。","axis":null,"axisDir":null,"element":"Se","dimension":"stable","weight":0.8},
+  {"id":55,"phase":3,"text":"状況が変わっても、同じ基準や考え方で判断しています。","axis":"TF","axisDir":"T","element":"Ti","dimension":"stable","weight":0.8},
 
-  {"id":56,"phase":3,"text":"仕事や作業の進め方について、「どういう手順でやっているか」を人に説明できます。","axis":"SN","axisDir":"S","element":"Te","dimension":"reproducible","weight":0.7},
-  {"id":57,"phase":3,"text":"話し合いで意見を出すとき、「なぜそう考えたか」を言葉で説明できます。","axis":"TF","axisDir":"T","element":"Ti","dimension":"reproducible","weight":0.7},
-  {"id":58,"phase":3,"text":"周りから、「それどうやってやってるの？」とやり方について教えを求められることがあります。","axis":"SN","axisDir":"S","element":"Te","dimension":"reproducible","weight":0.7},
-  {"id":59,"phase":3,"text":"自分の中で、「物事の考え方」「作業の進め方」の型がはっきりしています。","axis":"TF","axisDir":"T","element":"Ti","dimension":"reproducible","weight":0.7},
-  {"id":60,"phase":3,"text":"誰かに教えるとき、手順や考え方を順番に説明しています。","axis":"TF","axisDir":"F","element":"Fe","dimension":"reproducible","weight":0.7}
+
+  {"id":56,"phase":3,"text":"物事の考え方や発想の仕方について、「どういう視点で見ているか」を人に説明できます。","axis":"SN","axisDir":"N","element":"Ne","dimension":"reproducible","weight":0.8},
+  {"id":57,"phase":3,"text":"話し合いで意見を出すとき、「どんな流れや意味を見てそう考えたか」を言葉で説明できます。","axis":"SN","axisDir":"N","element":"Ni","dimension":"reproducible","weight":0.8},
+  {"id":58,"phase":3,"text":"周りから、「その発想どこから来たの？」と考え方や視点について聞かれることがあります。","axis":null,"axisDir":null,"element":"Ne","dimension":"reproducible","weight":0.8},
+  {"id":59,"phase":3,"text":"自分の中で、「物事の捉え方」「発想の広げ方」に一定の型があります。","axis":"SN","axisDir":"N","element":"Ne","dimension":"reproducible","weight":0.8},
+  {"id":60,"phase":3,"text":"誰かに考え方を教えるとき、出来事の意味や流れから説明することが多いです。","axis":"SN","axisDir":"N","element":"Ni","dimension":"reproducible","weight":0.8}
+
   ];
 
   /* --------------------------
@@ -661,6 +666,7 @@ html,body{
     const elemScale = maxAbsElem > 0 ? (1 / maxAbsElem) : 1;
 
     const rawScores = {};
+    const elementScoreNorm = {};
     for(const t of TYPES){
       let axisMatch = 0;
       axisMatch += (DICH.E.has(t) ? pE : (1-pE));
@@ -670,17 +676,20 @@ html,body{
       axisMatch = axisMatch / 4;
 
       let dot = 0;
-      for(const e of ELEMENTS){
+      for(const e in state.elementScores){
         const pos = MODEL[t].indexOf(e);
-        const sign = (pos === 0 || pos === 1) ? +1 : -1;
-        dot += (state.elementScores[e]||0) * sign;
+        if(pos >= 0){
+          const w = POS_W[pos] * VAL_SIGN[pos];
+          dot += (state.elementScores[e] || 0) * w;
+        }
       }
-      const elementScoreNorm = sigmoid(dot * 0.6 * elemScale);
+      elementScoreNorm[t] = sigmoid(dot * 0.25);
 
-      const wAxis = 0.62;
-      const wElem = 0.34;
+
+      const wAxis = 0.48;
+      const wElem = 0.48;
       const wPrior = 0.04;
-      const combined = wAxis*axisMatch + wElem*elementScoreNorm + wPrior*(1/TYPES.length);
+      const combined = wAxis*axisMatch + wElem*(elementScoreNorm[t] || 0) + wPrior*(1/TYPES.length);
       rawScores[t] = Math.max(1e-12, combined);
     }
 
@@ -1000,7 +1009,7 @@ html,body{
 
     // Quadra display: start from state.quadra, apply sharpenDistribution with k = 3.2, normalize, then show percentages (1 decimal)
     const qRaw = state.quadra || computeQuadraFromPosterior(posterior);
-    const qSharp = sharpenDistribution(qRaw, 3.2); // fixed sharpening for visible bias
+    const qSharp = sharpenDistribution(qRaw, 6.0); // fixed sharpening for visible bias
     const qDisplay = normalizeVec(qSharp);
 
     const qvEl = document.getElementById("quadraViz");
@@ -1338,4 +1347,3 @@ html,body{
 </script>
 </body>
 </html>
-
