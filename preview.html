@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
-  <title>Socionics Typing v2.4</title>
+  <title>Socionics Typing v2.5</title>
   <meta name="theme-color" content="#ff4fd8" />
 
 <style>
@@ -190,6 +190,276 @@ html,body{
   background:transparent;border:0;color:var(--muted);font-size:12px;padding:4px 6px;cursor:pointer;text-decoration:underline;
   border-radius:6px;
 }
+
+/* --------------------------
+   Result Screen - Wallet Style Glassmorphism
+   -------------------------- */
+.resultHero{
+  position:relative;
+  border-radius:24px;
+  padding:32px;
+  background:
+    linear-gradient(135deg, rgba(255,79,216,0.12), rgba(57,184,255,0.08)),
+    linear-gradient(45deg, rgba(147,51,234,0.06), transparent),
+    rgba(255,255,255,0.25);
+  backdrop-filter: blur(20px);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:
+    0 32px 64px rgba(16,24,40,0.12),
+    0 16px 32px rgba(255,79,216,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+  overflow:hidden;
+}
+
+.resultHero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:24px;
+  padding:1px;
+  background:linear-gradient(135deg, rgba(255,79,216,0.1), transparent, rgba(57,184,255,0.1));
+  opacity:0.3;
+  mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite:exclude;
+  pointer-events:none;
+}
+
+.resultHero__bg{
+  position:absolute;
+  inset:0;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,79,216,0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(57,184,255,0.25) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(147,51,234,0.15) 0%, transparent 60%);
+  opacity:0.6;
+}
+
+.resultHero__content{
+  position:relative;
+  z-index:1;
+}
+
+.resultHeadline{
+  font-size:32px;
+  font-weight:1400;
+  line-height:1.2;
+  margin:0 0 8px 0;
+  background:linear-gradient(135deg, var(--hi), var(--hi2));
+  background-clip:text;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  letter-spacing:0.02em;
+}
+
+.resultSubline{
+  font-size:16px;
+  color:var(--muted);
+  font-weight:600;
+  margin:0;
+}
+
+.top3Grid{
+  display:grid;
+  gap:20px;
+  margin-top:32px;
+}
+
+.topCard{
+  border-radius:20px;
+  padding:24px;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter: blur(16px);
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:
+    0 12px 24px rgba(16,24,40,0.08),
+    0 6px 12px rgba(255,79,216,0.04);
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position:relative;
+  overflow:hidden;
+}
+
+.topCard:hover{
+  transform:translateY(-4px);
+  box-shadow:
+    0 20px 40px rgba(16,24,40,0.12),
+    0 8px 16px rgba(255,79,216,0.08);
+  border-color:rgba(255,79,216,0.2);
+}
+
+.topCard--primary{
+  background:
+    linear-gradient(135deg, rgba(255,79,216,0.08), rgba(57,184,255,0.06)),
+    rgba(255,255,255,0.25);
+  border:1px solid rgba(255,79,216,0.15);
+}
+
+.topCard--primary::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:20px;
+  background:linear-gradient(135deg, rgba(255,79,216,0.1), transparent, rgba(57,184,255,0.1));
+  opacity:0.3;
+}
+
+.topCard__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:16px;
+}
+
+.topCard__rank{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  font-weight:800;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+
+.rankBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:linear-gradient(135deg, var(--hi), var(--hi2));
+  color:#fff;
+  font-size:14px;
+  font-weight:1200;
+  box-shadow:0 4px 12px rgba(255,79,216,0.3);
+}
+
+.topCard__type{
+  font-size:24px;
+  font-weight:1200;
+  color:var(--ink);
+  margin:0;
+}
+
+.topCard__primary .topCard__type{
+  font-size:28px;
+}
+
+.topCard__meta{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:8px;
+}
+
+.quadraBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(10,20,40,0.04);
+  border:1px solid rgba(10,20,40,0.1);
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+}
+
+.quadraSymbol{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:linear-gradient(135deg, var(--hi), var(--hi2));
+  color:#fff;
+  font-size:10px;
+  font-weight:1200;
+}
+
+.percentageDisplay{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:20px;
+  font-weight:1200;
+  color:var(--ink);
+}
+
+.percentageBar{
+  width:60px;
+  height:6px;
+  border-radius:999px;
+  background:rgba(10,20,40,0.06);
+  overflow:hidden;
+  position:relative;
+}
+
+.percentageBar__fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--hi), var(--hi2));
+  border-radius:999px;
+  transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topCard__details{
+  margin-top:20px;
+  padding-top:16px;
+  border-top:1px solid rgba(10,20,40,0.08);
+}
+
+.detailRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:8px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.detailLabel{
+  font-weight:600;
+  color:var(--muted);
+}
+
+.detailValue{
+  font-weight:800;
+  color:var(--ink);
+}
+
+.topCard__description{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid rgba(10,20,40,0.08);
+  font-size:14px;
+  line-height:1.8;
+  color:var(--ink);
+  font-weight:500;
+}
+
+.sparkLine{
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  margin-left:8px;
+}
+
+.sparkDot{
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--hi);
+  opacity:0.3;
+}
+
+.sparkDot.active{
+  opacity:1;
+  background:var(--hi2);
+}
 </style>
 </head>
 
@@ -199,7 +469,7 @@ html,body{
     <div class="brand">
       <div class="logo" aria-hidden="true"></div>
       <div>
-        <h1>Socionics Typing v2.4 </h1>
+        <h1>Socionics Typing v2.5 </h1>
       </div>
     </div>
     <div class="actions">
@@ -237,18 +507,22 @@ html,body{
       </div>
 
       <div class="body" id="screenResult" style="display:none">
-        <div class="qbox">
-          <div class="small">結果（上位3タイプ）</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-            <div style="font-size:18px;font-weight:1200;margin-top:6px" id="resHeadline">—</div>
-            <!-- unobtrusive export link -->
-            <div style="text-align:right">
-              <button id="btnExportData" class="exportLink" title="診断データをJSONとして保存（任意）">診断データを保存（任意）</button>
+        <!-- Wallet Style Hero Card -->
+        <div class="resultHero">
+          <div class="resultHero__bg"></div>
+          <div class="resultHero__content">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+              <div>
+                <h1 class="resultHeadline" id="resHeadline">—</h1>
+                <p class="resultSubline">あなたの推定タイプ</p>
+              </div>
+              <div style="text-align:right">
+                <button id="btnExportData" class="exportLink" title="診断データをJSONとして保存（任意）">診断データを保存（任意）</button>
+              </div>
             </div>
-          </div>
-          <div class="hr"></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-            <button class="btn primary" id="btnRestart">最初から</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;margin-top:24px">
+              <button class="btn primary" id="btnRestart">最初から</button>
+            </div>
           </div>
         </div>
 
@@ -1031,53 +1305,82 @@ html,body{
   /* --------------------------
      Results display (kept UX but using display sharpening for headline)
      -------------------------- */
-  function adjustDisplayPercentages(topRaw){
-    const mins=[60,20,1];
-    const maxs=[90,40,20];
-    const slots = topRaw.map(x=>x[1] || 0);
-    while(slots.length<3) slots.push(0);
-    const sum = slots.reduce((a,b)=>a+b,0) || 1;
-    let w = slots.map(s=>s/sum);
+  function adjustDisplayPercentages(topRaw, fullDisplayPosterior){
+    const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 
-    let remain = 100 - mins.reduce((a,b)=>a+b,0);
-    let alloc = mins.map((m,i)=> m + remain * w[i]);
+    const p1 = Math.max(0, topRaw?.[0]?.[1] ?? 0);
+    const p2 = Math.max(0, topRaw?.[1]?.[1] ?? 0);
+    const p3 = Math.max(0, topRaw?.[2]?.[1] ?? 0);
 
-    for(let iter=0; iter<8; iter++){
-      let excess = 0;
-      const slack = [];
-      for(let i=0;i<3;i++){
-        if(alloc[i] > maxs[i]){ excess += alloc[i] - maxs[i]; alloc[i] = maxs[i]; }
-        else slack.push(i);
-      }
-      if(excess <= 1e-6) break;
-      if(slack.length===0) break;
-      const totalSlack = slack.reduce((s,i)=>s + (maxs[i]-alloc[i]),0) || 1;
-      for(const i of slack){
-        alloc[i] += (maxs[i]-alloc[i]) / totalSlack * excess;
+    // ---- confidence: gap(1位-2位) + entropy(分布の鋭さ) から作る（※ max確率を0.6前提で扱わない） ----
+    let probs = (fullDisplayPosterior && typeof fullDisplayPosterior==="object") ? fullDisplayPosterior : null;
+
+    // fallback: topRawしか無い場合でも entropy が作れるように（最低限）
+    if(!probs){
+      probs = {};
+      for(const [t,p] of (topRaw||[])){
+        if(typeof t==="string" && typeof p==="number") probs[t]=p;
       }
     }
 
-    const rounded = alloc.map(x=>Math.round(x));
-    let diff = 100 - rounded.reduce((a,b)=>a+b,0);
-    const order = [0,1,2];
-    for(let i=0;i<Math.abs(diff); i++){
-      const idx = order[i % order.length];
-      if(diff>0){
-        if(rounded[idx] < maxs[idx]) rounded[idx] += 1;
-        else {
-          for(const j of order) if(rounded[j] < maxs[j]) { rounded[j] += 1; break; }
-        }
-      }else{
-        if(rounded[idx] > mins[idx]) rounded[idx] -= 1;
-        else {
-          for(const j of order) if(rounded[j] > mins[j]) { rounded[j] -= 1; break; }
-        }
+    // entropy (0=鋭い, 1=平たい)
+    let sum=0;
+    for(const k in probs){
+      const v = probs[k];
+      if(typeof v==="number" && v>0) sum += v;
+    }
+    if(sum<=0) sum=1;
+
+    let h=0;
+    for(const k in probs){
+      const v = probs[k];
+      if(typeof v==="number" && v>0){
+        const pn = v/sum;
+        h -= pn*Math.log(pn);
       }
     }
-    for(let i=0;i<3;i++) rounded[i] = Math.max(mins[i], Math.min(maxs[i], rounded[i]));
-    let ssum = rounded.reduce((a,b)=>a+b,0);
-    if(ssum !== 100) rounded[0] += 100 - ssum;
-    return rounded;
+    const Hmax = Math.log(16);             // 16タイプ想定
+    const h01  = clamp(h / Hmax, 0, 1);    // 0..1
+
+    const gap    = clamp(p1 - p2, 0, 1);
+    const gap01  = clamp(gap / 0.06, 0, 1);         // ここは"効き"の調整ノブ（大きいほど鈍くなる）
+    const conf01 = clamp(0.7*gap01 + 0.3*(1 - h01), 0, 1);
+
+    // conf01 を「平均75・σ≈3」になるよう z に変換（ざっくりの見た目調整）
+    const z = (conf01 - 0.5) / 0.1666666667; // conf01が±0.166ズレると top1が約±3 動く
+    let top1 = 75 + 3*z;
+    top1 = clamp(top1, 60, 90);
+
+    // 2位/3位は p2:p3 に按分して合計100に
+    const denom  = (p2 + p3) || 1;
+    const remain = 100 - top1;
+    let top2 = remain * (p2 / denom);
+    let top3 = remain * (p3 / denom);
+
+    // 丸めて合計100に補正（1位の範囲は維持）
+    let a = Math.round(top1);
+    let b = Math.round(top2);
+    let c = Math.round(top3);
+
+    let diff = 100 - (a + b + c);
+    const within = (x,lo,hi)=> x>=lo && x<=hi;
+
+    for(let i=0;i<Math.abs(diff);i++){
+      const d = diff>0 ? +1 : -1;
+      if(within(b + d, 0, 100) && within(a, 60, 90)){ b += d; continue; }
+      if(within(c + d, 0, 100) && within(a, 60, 90)){ c += d; continue; }
+      if(within(a + d, 60, 90)){ a += d; continue; }
+      b += d;
+    }
+
+    const s = a + b + c;
+    if(s !== 100){
+      const dd = 100 - s;
+      if(within(b + dd, 0, 100)) b += dd;
+      else c += dd;
+    }
+
+    return [a,b,c];
   }
 
   /* --------------------------
@@ -1176,38 +1479,78 @@ html,body{
         return {type:t, displayPct: displayPcts[i]};
       });
 
-      document.getElementById("resHeadline").textContent =
-        top3.map((e,idx)=>`${idx+1}位 ${e.type}（${e.displayPct}%）`).join(" / ");
+      document.getElementById("resHeadline").textContent = top3[0]?.type || "—";
 
       const resCards=document.getElementById("resCards");
       resCards.innerHTML = "";
+      
+      // Create top3 grid with wallet-style cards
+      const top3Grid = document.createElement("div");
+      top3Grid.className = "top3Grid";
+      
       top3.forEach((tp, idx)=>{
         const t = tp.type;
         const p = tp.displayPct;
         const s = typeSummary(t);
-        const div = document.createElement("div");
-        div.className = "qbox";
-        div.innerHTML = `
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <div>
-              <div class="small">${idx+1}位</div>
-              <div style="font-size:18px;font-weight:1200;margin-top:4px">${t}
-                <span style="font-size:11px;color:var(--muted);border:1px solid var(--line);background:rgba(10,20,40,.04);border-radius:999px;padding:4px 8px;margin-left:8px">
-                  ${QSYM[s.quadra]} ${s.quadra}
-                </span>
+        const isPrimary = idx === 0;
+        
+        const card = document.createElement("div");
+        card.className = `topCard ${isPrimary ? 'topCard--primary' : ''}`;
+        
+        // Create sparkline dots based on percentage
+        const sparkDots = Array(5).fill(0).map((_, i) => 
+          `<span class="sparkDot ${i < Math.floor(p/20) ? 'active' : ''}"></span>`
+        ).join('');
+        
+        card.innerHTML = `
+          <div class="topCard__header">
+            <div class="topCard__rank">
+              <span class="rankBadge">${idx + 1}</span>
+              <span>${idx + 1}位</span>
+            </div>
+            <div class="percentageDisplay">
+              <span>${p}%</span>
+              <div class="percentageBar">
+                <div class="percentageBar__fill" style="width: ${p}%"></div>
+              </div>
+              <div class="sparkLine">${sparkDots}</div>
+            </div>
+          </div>
+          
+          <div class="${isPrimary ? 'topCard__primary' : ''}">
+            <h3 class="topCard__type">${t}</h3>
+            <div class="topCard__meta">
+              <div class="quadraBadge">
+                <span class="quadraSymbol">${QSYM[s.quadra]}</span>
+                <span>${s.quadra}</span>
               </div>
             </div>
-            <div style="font-weight:1200">${p}%</div>
           </div>
-          <div class="hr"></div>
-          <div class="small">
-            主導：<b style="color:var(--ink)">${s.lead}</b> ／ 創造：<b style="color:var(--ink)">${s.crea}</b><br/>
-            価値：${s.values}
+          
+          <div class="topCard__details">
+            <div class="detailRow">
+              <span class="detailLabel">主導</span>
+              <span class="detailValue">${s.lead}</span>
+            </div>
+            <div class="detailRow">
+              <span class="detailLabel">創造</span>
+              <span class="detailValue">${s.crea}</span>
+            </div>
+            <div class="detailRow">
+              <span class="detailLabel">価値要素</span>
+              <span class="detailValue">${s.values}</span>
+            </div>
           </div>
-          <div style="margin-top:10px;line-height:1.9">${s.oneLine}</div>
+          
+          <div class="topCard__description">
+            ${s.oneLine}
+          </div>
         `;
-        resCards.appendChild(div);
+        
+        top3Grid.appendChild(card);
       });
+      
+      resCards.appendChild(top3Grid);
 
       const topType = top3[0]?.type || topN(state.posterior,1)[0]?.[0] || "ILE";
       renderViz(topType);
