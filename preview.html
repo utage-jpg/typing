@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
-  <title>Socionics Typing v2.5</title>
+  <title>Socionics Typing v2.6</title>
   <meta name="theme-color" content="#ff4fd8" />
 
 <style>
@@ -967,81 +967,81 @@ html,body{
      NOTE: QUESTIONS.length now drives progress display and iteration.
      -------------------------- */
   const QUESTIONS = [
-  {"id":1,"phase":1,"text":"集まりや飲み会の翌日は、一人で静かに回復する時間が必要になりやすいです。","axis":"EI","axisDir":"I","element":null,"dimension":"none","weight":1.2},
-  {"id":2,"phase":1,"text":"仕事や課題で詰まったとき、誰かに話しながら整理する方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
-  {"id":3,"phase":1,"text":"初対面の人が多い場では、自分から話しかける方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
-  {"id":4,"phase":1,"text":"忙しい日は、相談や打ち合わせを入れて進めたい方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
-  {"id":5,"phase":1,"text":"数か月続くチーム作業で、人と関わり続けるのはあまり負担になりません。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":1,"phase":2,"text":"集まりや飲み会の翌日は、一人で静かに回復する時間が必要になりやすいです。","axis":"EI","axisDir":"I","element":null,"dimension":"none","weight":1.2},
+  {"id":2,"phase":2,"text":"仕事や課題で詰まったとき、誰かに話しながら整理する方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":3,"phase":2,"text":"初対面の人が多い場では、自分から話しかける方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":4,"phase":2,"text":"忙しい日は、相談や打ち合わせを入れて進めたい方です。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
+  {"id":5,"phase":2,"text":"数か月続くチーム作業で、人と関わり続けるのはあまり負担になりません。","axis":"EI","axisDir":"E","element":null,"dimension":"none","weight":1.2},
 
-  {"id":6,"phase":1,"text":"説明するときは、実際にあった話や具体例から話すことが多いです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
-  {"id":7,"phase":1,"text":"旅行や企画を考えるとき、体験の雰囲気より「何をするか」を先に決めます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
-  {"id":8,"phase":1,"text":"人の話を聞くとき、「それが何を示すか」より「何が起きたか」が印象に残ります。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
-  {"id":9,"phase":1,"text":"仕事の指示は、狙いより手順を細かく伝える方です。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
-  {"id":10,"phase":1,"text":"アイデアは、面白さよりも「実際に使えるか」で評価しがちです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":6,"phase":2,"text":"説明するときは、実際にあった話や具体例から話すことが多いです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":7,"phase":2,"text":"旅行や企画を考えるとき、体験の雰囲気より「何をするか」を先に決めます。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":8,"phase":2,"text":"人の話を聞くとき、「それが何を示すか」より「何が起きたか」が印象に残ります。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":9,"phase":2,"text":"仕事の指示は、狙いより手順を細かく伝える方です。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
+  {"id":10,"phase":2,"text":"アイデアは、面白さよりも「実際に使えるか」で評価しがちです。","axis":"SN","axisDir":"S","element":null,"dimension":"none","weight":1.2},
 
-  {"id":11,"phase":1,"text":"意見が割れたら、納得感より数字や根拠で決めたいです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
-  {"id":12,"phase":1,"text":"人を評価するとき、人柄より成果・スキルを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
-  {"id":13,"phase":1,"text":"注意するとき、言い方より正しさを優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.5},
-  {"id":14,"phase":1,"text":"議論中は、その場の雰囲気より話が論理的かが気になります。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
-  {"id":15,"phase":1,"text":"チームでは、関係性より役割と成果を重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":11,"phase":2,"text":"意見が割れたら、納得感より数字や根拠で決めたいです。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":12,"phase":2,"text":"人を評価するとき、人柄より成果・スキルを重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":13,"phase":2,"text":"注意するとき、言い方より正しさを優先します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.5},
+  {"id":14,"phase":2,"text":"議論中は、その場の雰囲気より話が論理的かが気になります。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
+  {"id":15,"phase":2,"text":"チームでは、関係性より役割と成果を重視します。","axis":"TF","axisDir":"T","element":null,"dimension":"none","weight":1.2},
 
-  {"id":16,"phase":1,"text":"締切前に迷ったとき、多少荒くても出す方です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
-  {"id":17,"phase":1,"text":"トラブルが起きたときは、まず状況を整理して「どう対処するか」を決めてから動きたいです。","axis":"JP","axisDir":"J","element":null,"dimension":"none","weight":1.2},
-  {"id":18,"phase":1,"text":"新しいことに取り組むとき、細かく決めてからよりも、走りながら考える方が合っています。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
-  {"id":19,"phase":1,"text":"仕事では、やるべきことを先に決めて、計画通りに進めたい方です。","axis":"JP","axisDir":"J","element":null,"dimension":"none","weight":1.2},
-  {"id":20,"phase":1,"text":"会話や打ち合わせでは、結論を急がず、流れの中で自然に決まっていく方が楽です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
+  {"id":16,"phase":2,"text":"締切前に迷ったとき、多少荒くても出す方です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
+  {"id":17,"phase":2,"text":"トラブルが起きたときは、まず状況を整理して「どう対処するか」を決めてから動きたいです。","axis":"JP","axisDir":"J","element":null,"dimension":"none","weight":1.2},
+  {"id":18,"phase":2,"text":"新しいことに取り組むとき、細かく決めてからよりも、走りながら考える方が合っています。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
+  {"id":19,"phase":2,"text":"仕事では、やるべきことを先に決めて、計画通りに進めたい方です。","axis":"JP","axisDir":"J","element":null,"dimension":"none","weight":1.2},
+  {"id":20,"phase":2,"text":"会話や打ち合わせでは、結論を急がず、流れの中で自然に決まっていく方が楽です。","axis":"JP","axisDir":"P","element":null,"dimension":"none","weight":1.2},
 
-  {"id":21,"phase":2,"text":"話し合いで案が1つに絞られていくと、「他の案も考えたい」と物足りなく感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
-  {"id":22,"phase":2,"text":"新しい話を聞くと、「もっと別の形もありそう」と自然に考えます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
-  {"id":23,"phase":2,"text":"選択肢が少ない状況は、少し窮屈に感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
+  {"id":21,"phase":1,"text":"話し合いで案が1つに絞られていくと、「他の案も考えたい」と物足りなく感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
+  {"id":22,"phase":1,"text":"新しい話を聞くと、「もっと別の形もありそう」と自然に考えます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
+  {"id":23,"phase":1,"text":"選択肢が少ない状況は、少し窮屈に感じます。","axis":null,"axisDir":null,"element":"Ne","dimension":"none","weight":1.0},
 
-  {"id":24,"phase":2,"text":"出来事を見るとき、「この先どうなりそうか」を考えるのが自然です。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
-  {"id":25,"phase":2,"text":"決断するとき、「今かどうか」というタイミングを重視します。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
-  {"id":26,"phase":2,"text":"短期の成果より、長期の方向性の方が気になります。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
+  {"id":24,"phase":1,"text":"出来事を見るとき、「この先どうなりそうか」を考えるのが自然です。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
+  {"id":25,"phase":1,"text":"決断するとき、「今かどうか」というタイミングを重視します。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
+  {"id":26,"phase":1,"text":"短期の成果より、長期の方向性の方が気になります。","axis":null,"axisDir":null,"element":"Ni","dimension":"none","weight":1.0},
 
-  {"id":27,"phase":2,"text":"迷っている場面では、誰かが決めて前に進めると安心します。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
-  {"id":28,"phase":2,"text":"必要なら、少し強く言ってでも進めたいと思います。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
-  {"id":29,"phase":2,"text":"グループワークにおいて、主導権を握って動かす方が落ち着きます。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
+  {"id":27,"phase":1,"text":"迷っている場面では、誰かが決めて前に進めると安心します。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
+  {"id":28,"phase":1,"text":"必要なら、少し強く言ってでも進めたいと思います。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
+  {"id":29,"phase":1,"text":"グループワークにおいて、主導権を握って動かす方が落ち着きます。","axis":null,"axisDir":null,"element":"Se","dimension":"none","weight":1.0},
 
-  {"id":30,"phase":2,"text":"環境や体調が整っていると、気持ちも安定します。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
-  {"id":31,"phase":2,"text":"無理のないペースで進められると安心します。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
-  {"id":32,"phase":2,"text":"小さな不快が続くと、集中しにくくなります。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
+  {"id":30,"phase":1,"text":"環境や体調が整っていると、気持ちも安定します。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
+  {"id":31,"phase":1,"text":"無理のないペースで進められると安心します。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
+  {"id":32,"phase":1,"text":"小さな不快が続くと、集中しにくくなります。","axis":null,"axisDir":null,"element":"Si","dimension":"none","weight":1.0},
 
-  {"id":33,"phase":2,"text":"言葉やルールの意味が曖昧だと、まずはっきりさせたくなります。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
-  {"id":34,"phase":2,"text":"話を聞くとき、筋が通っているかが気になります。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
-  {"id":35,"phase":2,"text":"分類や整理ができると、頭がすっきりします。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
+  {"id":33,"phase":1,"text":"言葉やルールの意味が曖昧だと、まずはっきりさせたくなります。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
+  {"id":34,"phase":1,"text":"話を聞くとき、筋が通っているかが気になります。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
+  {"id":35,"phase":1,"text":"分類や整理ができると、頭がすっきりします。","axis":null,"axisDir":null,"element":"Ti","dimension":"none","weight":1.0},
 
-  {"id":36,"phase":2,"text":"話が長くなると、「結局どうすればいいのか」を知りたくなります。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
-  {"id":37,"phase":2,"text":"実績や数字があると、安心して判断できます。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
-  {"id":38,"phase":2,"text":"成果につながらない作業は、早めに切り替えたいです。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
+  {"id":36,"phase":1,"text":"話が長くなると、「結局どうすればいいのか」を知りたくなります。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
+  {"id":37,"phase":1,"text":"実績や数字があると、安心して判断できます。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
+  {"id":38,"phase":1,"text":"成果につながらない作業は、早めに切り替えたいです。","axis":null,"axisDir":null,"element":"Te","dimension":"none","weight":1.0},
 
-  {"id":39,"phase":2,"text":"場が静かすぎると、自分から少し動かしたくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
-  {"id":40,"phase":2,"text":"感情を言葉にして共有できると、やりやすくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
-  {"id":41,"phase":2,"text":"雰囲気が重いと、変えたくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
+  {"id":39,"phase":1,"text":"場が静かすぎると、自分から少し動かしたくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
+  {"id":40,"phase":1,"text":"感情を言葉にして共有できると、やりやすくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
+  {"id":41,"phase":1,"text":"雰囲気が重いと、変えたくなります。","axis":null,"axisDir":null,"element":"Fe","dimension":"none","weight":1.0},
 
-  {"id":42,"phase":2,"text":"人を見るとき、能力より誠実さが気になります。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
-  {"id":43,"phase":2,"text":"一対一において距離感が合わないと、居心地が悪くなります。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
-  {"id":44,"phase":2,"text":"友人に求める一番の条件は、約束や道理を守る人です。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
-  {"id":45,"phase":2,"text":"好意や信頼を向ける相手は、かなりはっきりと選んでいます。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":42,"phase":1,"text":"人を見るとき、能力より誠実さが気になります。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":43,"phase":1,"text":"一対一において距離感が合わないと、居心地が悪くなります。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":44,"phase":1,"text":"友人に求める一番の条件は、約束や道理を守る人です。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
+  {"id":45,"phase":1,"text":"好意や信頼を向ける相手は、かなりはっきりと選んでいます。","axis":null,"axisDir":null,"element":"Fi","dimension":"none","weight":1.0},
 
-  {"id":46,"phase":3,"text":"話し合いで案が1つに絞られていくと、「他の案も考えたい」と物足りなく感じます。","axis":"TF","axisDir":"T","element":"Ti","dimension":"unconscious","weight":0.8},
-  {"id":47,"phase":3,"text":"場の雰囲気が重いとき、自然と「空気を和らげる行動」をしています。","axis":"TF","axisDir":"F","element":"Fe","dimension":"unconscious","weight":0.8},
-  {"id":48,"phase":3,"text":"迷っている人を見ると、つい「決断を後押しする言葉や行動」を取ってしまいます。","axis":"EI","axisDir":"E","element":"Se","dimension":"unconscious","weight":0.8},
-  {"id":49,"phase":3,"text":"初めての作業や役割でも、「どう動けばいいか」はあまり迷いません。","axis":null,"axisDir":null,"element":"Te","dimension":"unconscious","weight":0.8},
-  {"id":50,"phase":3,"text":"人の話を聞くとき、内容よりも「流れ」や「タイミング」が先に気になります。","axis":"SN","axisDir":"N","element":"Ni","dimension":"unconscious","weight":0.8},
+  {"id":46,"phase":3,"text":"話が噛み合っていないと感じると、まず言葉の意味を揃えたくなります。","axis":"TF","axisDir":"T","element":"Ti","dimension":"unconscious","weight":0.8},
+  {"id":47,"phase":3,"text":"場の空気が重いと、何か一言言って和らげたくなります。","axis":"TF","axisDir":"F","element":"Fe","dimension":"unconscious","weight":0.8},
+  {"id":48,"phase":3,"text":"迷っている時間が長いと、自分から進行役を引き受けがちです。","axis":"EI","axisDir":"E","element":"Se","dimension":"unconscious","weight":0.8},
+  {"id":49,"phase":3,"text":"集中力が切れてきたら、部屋の明るさや姿勢を整えたくなります。","axis":null,"axisDir":null,"element":"Si","dimension":"unconscious","weight":0.8},
+  {"id":50,"phase":3,"text":"行き詰まると、別のやり方や選択肢をいくつか考え出します。","axis":"SN","axisDir":"N","element":"Ne","dimension":"unconscious","weight":0.8},
 
-  {"id":51,"phase":3,"text":"体調や気分が良くない日でも、「いつも通りできる作業や判断」は大きく崩れません。","axis":null,"axisDir":null,"element":"Si","dimension":"stable","weight":0.8},
-  {"id":52,"phase":3,"text":"職場や環境が変わっても、自分のやり方や考え方はあまり変わりません。","axis":null,"axisDir":null,"element":"Ti","dimension":"stable","weight":0.8},
-  {"id":53,"phase":3,"text":"失敗したあとも、ガラッと手順を変えずだいたい同じやり方で対応します。","axis":null,"axisDir":null,"element":"Te","dimension":"stable","weight":0.8},
-  {"id":54,"phase":3,"text":"忙しいときほど、自然と「自分の決まった動き方」で行動しています。","axis":null,"axisDir":null,"element":"Se","dimension":"stable","weight":0.8},
-  {"id":55,"phase":3,"text":"状況が変わっても、同じ基準や考え方で判断しています。","axis":"TF","axisDir":"T","element":"Ti","dimension":"stable","weight":0.8},
+  {"id":51,"phase":3,"text":"情報を集めて手順を整理し、具体的な計画に落とすのが得意です。","axis":null,"axisDir":null,"element":"Te","dimension":"stable","weight":0.8},
+  {"id":52,"phase":3,"text":"人との距離感を大切にし、長期的な関係を築くことができます。","axis":null,"axisDir":null,"element":"Fi","dimension":"stable","weight":0.8},
+  {"id":53,"phase":3,"text":"ルールや仕組みを整理して、矛盾のない形にまとめるのが得意です。","axis":null,"axisDir":null,"element":"Ti","dimension":"stable","weight":0.8},
+  {"id":54,"phase":3,"text":"交渉事では、状況に合わせて強弱を使い分けることができます。","axis":null,"axisDir":null,"element":"Se","dimension":"stable","weight":0.8},
+  {"id":55,"phase":3,"text":"無理のないペースを保ちながら、長く続けることができます。","axis":null,"axisDir":null,"element":"Si","dimension":"stable","weight":0.8},
 
 
-  {"id":56,"phase":3,"text":"物事の考え方や発想の仕方について、「どういう視点で見ているか」を人に説明できます。","axis":"SN","axisDir":"N","element":"Ne","dimension":"reproducible","weight":0.8},
-  {"id":57,"phase":3,"text":"話し合いで意見を出すとき、「どんな流れや意味を見てそう考えたか」を言葉で説明できます。","axis":"SN","axisDir":"N","element":"Ni","dimension":"reproducible","weight":0.8},
-  {"id":58,"phase":3,"text":"周りから、「その発想どこから来たの？」と考え方や視点について聞かれることがあります。","axis":null,"axisDir":null,"element":"Ne","dimension":"reproducible","weight":0.8},
-  {"id":59,"phase":3,"text":"自分の中で、「物事の捉え方」「発想の広げ方」に一定の型があります。","axis":"SN","axisDir":"N","element":"Ne","dimension":"reproducible","weight":0.8},
-  {"id":60,"phase":3,"text":"誰かに考え方を教えるとき、出来事の意味や流れから説明することが多いです。","axis":"SN","axisDir":"N","element":"Ni","dimension":"reproducible","weight":0.8}
+  {"id":56,"phase":3,"text":"全体の流れを見ながら、やるべきことの順番を決められます。","axis":null,"axisDir":null,"element":"Ni","dimension":"reproducible","weight":0.8},
+  {"id":57,"phase":3,"text":"決まった観点からアイデアを出すことで、安定した発想ができます。","axis":null,"axisDir":null,"element":"Ne","dimension":"reproducible","weight":0.8},
+  {"id":58,"phase":3,"text":"作業を細かく分解してチェックリストを作り、再現性を高められます。","axis":null,"axisDir":null,"element":"Te","dimension":"reproducible","weight":0.8},
+  {"id":59,"phase":3,"text":"場を盛り上げるための声かけや進行役を、安定してこなせます。","axis":null,"axisDir":null,"element":"Fe","dimension":"reproducible","weight":0.8},
+  {"id":60,"phase":3,"text":"相手に合わせた伝え方や距離感で、関係を調整できます。","axis":null,"axisDir":null,"element":"Fi","dimension":"reproducible","weight":0.8}
 
   ];
 
@@ -1057,11 +1057,29 @@ html,body{
   ];
 
   /* --------------------------
+     buildAskedOrder - Create phase-ordered question sequence
+     -------------------------- */
+  function buildAskedOrder(){
+    const phase1 = [];
+    const phase2 = [];
+    const phase3 = [];
+    
+    QUESTIONS.forEach((q, index) => {
+      if(q.phase === 1) phase1.push(index);
+      else if(q.phase === 2) phase2.push(index);
+      else if(q.phase === 3) phase3.push(index);
+    });
+    
+    return [...phase1, ...phase2, ...phase3];
+  }
+
+  /* --------------------------
      State
      -------------------------- */
   const state = {
     step: 0,
-    asked: QUESTIONS.map((q,i)=>i),
+    // Natural order: QUESTIONS definition order = display order
+    asked: buildAskedOrder(),
     answers: [],
     posterior: Object.fromEntries(TYPES.map(t=>[t,1/TYPES.length])),
     quadra: {Alpha:0.25,Beta:0.25,Gamma:0.25,Delta:0.25},
@@ -1074,7 +1092,8 @@ html,body{
     historyGap:[],
     history: [],
     isAdvancing:false,
-    livePinned:false
+    livePinned:false,
+    axisAnswered: 0  // Track number of dichotomy questions answered
   };
 
   /* --------------------------
@@ -1095,7 +1114,7 @@ html,body{
   const sideCard=document.getElementById("sideCard");
   const btnToggleLive=document.getElementById("btnToggleLive");
 
-  function setProgress(){ elProg.textContent = `${state.step} / ${QUESTIONS.length}`; elBarFill.style.width = `${clamp(state.step/QUESTIONS.length,0,1)*100}%`; }
+  function setProgress(){ elProg.textContent = `${state.step} / ${state.asked.length}`; elBarFill.style.width = `${clamp(state.step/state.asked.length,0,1)*100}%`; }
 
   /* --------------------------
      Existing helpers reused: stabilizePosterior, etc.
@@ -1121,16 +1140,16 @@ html,body{
     return normalizeVec(w);
   }
   function applyAxisSoftElimination(p, step){
-    if(step < 8) return p;
+    if(step < 12) return p;  
     const pE = sumSet(p, DICH.E);
     const pS = sumSet(p, DICH.S);
     const pT = sumSet(p, DICH.T);
     const confE = Math.abs(pE - 0.5) * 2;
     const confS = Math.abs(pS - 0.5) * 2;
     const confT = Math.abs(pT - 0.5) * 2;
-    const phase = step < 18 ? 0.55 : step < 30 ? 0.75 : 1.0;
-    const confStart = 0.55;
-    const strengthMax = 0.55;
+    const phase = step < 25 ? 0.3 : step < 40 ? 0.5 : 0.7;  
+    const confStart = 0.65;  
+    const strengthMax = 0.25;  
     function axisPenalty(conf){
       if(conf <= confStart) return 1.0;
       const x = (conf - confStart) / (1 - confStart);
@@ -1153,8 +1172,13 @@ html,body{
     }
     return normalizeVec(out);
   }
-  function getStabilizeLam(step){ return step < 20 ? 0.30 : step < 40 ? 0.20 : 0.22; }
+  function getStabilizeLam(step){ 
+    return step < 20 ? 0.03 : step < 40 ? 0.04 : 0.05; 
+  }
   function stabilizePosterior(posterior, step){
+    // Prevent dichotomy influence until sufficient axis questions answered
+    if(state.axisAnswered < 6) return normalizeVec(posterior);
+    
     const lam = getStabilizeLam(step);
     const w = factorizedFromDich(posterior);
     const mixed = {};
@@ -1190,7 +1214,7 @@ html,body{
     return normalizeVec(out);
   }
   function getSharpenK(step){
-    const base = 1.0 + 1.5 * (step / (QUESTIONS.length - 1));
+    const base = 1.0 + 1.5 * (step / (state.asked.length - 1));
     return clamp(base, 1.0, 2.5);
   }
   function top1Prob(posterior){
@@ -1227,20 +1251,19 @@ html,body{
     const pT = sigmoid(valT * 0.4);
     const pJ = sigmoid(valJ * 0.35);
 
+    const confE = Math.abs(pE - 0.5) * 2;  
+    const confS = Math.abs(pS - 0.5) * 2;
+    const confT = Math.abs(pT - 0.5) * 2;
+    const confJ = Math.abs(pJ - 0.5) * 2;
+    const avgConf = (confE + confS + confT + confJ) / 4;
+    const confMin = Math.min(confE, confS, confT, confJ);  
+
+    const elemPosterior = {};
     let maxAbsElem = 0;
     for(const e of ELEMENTS) maxAbsElem = Math.max(maxAbsElem, Math.abs(state.elementScores[e]||0));
     const elemScale = maxAbsElem > 0 ? (1 / maxAbsElem) : 1;
 
-    const rawScores = {};
-    const elementScoreNorm = {};
     for(const t of TYPES){
-      let axisMatch = 0;
-      axisMatch += (DICH.E.has(t) ? pE : (1-pE));
-      axisMatch += (DICH.S.has(t) ? pS : (1-pS));
-      axisMatch += (DICH.T.has(t) ? pT : (1-pT));
-      axisMatch += (DICH.J.has(t) ? pJ : (1-pJ));
-      axisMatch = axisMatch / 4;
-
       let dot = 0;
       for(const e in state.elementScores){
         const pos = MODEL[t].indexOf(e);
@@ -1249,13 +1272,48 @@ html,body{
           dot += (state.elementScores[e] || 0) * w;
         }
       }
-      elementScoreNorm[t] = sigmoid(dot * 0.25);
+      elemPosterior[t] = sigmoid(dot * 0.15); // Reduced from 0.25 to reduce saturation
+    }
+    const elemNorm = normalizeVec(elemPosterior);
 
+    const axisPosterior = {};
+    for(const t of TYPES){
+      let axisMatch = 0;
+      axisMatch += (DICH.E.has(t) ? pE : (1-pE));
+      axisMatch += (DICH.S.has(t) ? pS : (1-pS));
+      axisMatch += (DICH.T.has(t) ? pT : (1-pT));
+      axisMatch += (DICH.J.has(t) ? pJ : (1-pJ));
+      axisMatch = axisMatch / 4;
+      axisPosterior[t] = axisMatch;
+    }
+    const axisNorm = normalizeVec(axisPosterior);
 
-      const wAxis = 0.48;
-      const wElem = 0.48;
-      const wPrior = 0.04;
-      const combined = wAxis*axisMatch + wElem*(elementScoreNorm[t] || 0) + wPrior*(1/TYPES.length);
+    const correctedScores = {};
+    for(const t of TYPES){
+      let mismatchCount = 0;
+      if(DICH.E.has(t) && pE < 0.5) mismatchCount++;
+      if(!DICH.E.has(t) && pE >= 0.5) mismatchCount++;
+      if(DICH.S.has(t) && pS < 0.5) mismatchCount++;
+      if(!DICH.S.has(t) && pS >= 0.5) mismatchCount++;
+      if(DICH.T.has(t) && pT < 0.5) mismatchCount++;
+      if(!DICH.T.has(t) && pT >= 0.5) mismatchCount++;
+      if(DICH.J.has(t) && pJ < 0.5) mismatchCount++;
+      if(!DICH.J.has(t) && pJ >= 0.5) mismatchCount++;
+
+      const isExtreme = confMin > 0.75;  
+      const kPenalty = isExtreme ? 0.06 : 0.04;  
+      const penalty = 1 - kPenalty * mismatchCount * avgConf;
+      
+      correctedScores[t] = Math.max(1e-12, elemNorm[t] * penalty);
+    }
+
+    const rawScores = {};
+    const wElem = 0.55;  
+    const wAxis = 0.40;  
+    const wPrior = 0.05; 
+    
+    for(const t of TYPES){
+      const combined = wElem * (correctedScores[t] || 0) + wAxis * (axisNorm[t] || 0) + wPrior * (1/TYPES.length);
       rawScores[t] = Math.max(1e-12, combined);
     }
 
@@ -1263,7 +1321,6 @@ html,body{
     const stabilized = stabilizePosterior(posteriorRaw, stepForStabilize || state.step);
     state.posterior = stabilized;
 
-    // compute quadra from posterior
     const qRaw = computeQuadraFromPosterior(state.posterior);
 
     // compute confidence and optionally mix toward top-type
@@ -1388,6 +1445,10 @@ html,body{
           }
         }
       }
+      // Track axis questions answered (only if not skipped)
+      if(!ans.skipped){
+        state.axisAnswered++;
+      }
     }
 
     if(q.element && q.element !== "RECAP"){
@@ -1424,6 +1485,7 @@ html,body{
     state.historyTop1Pct = [];
     state.historyGap = [];
     state.history = [];
+    state.axisAnswered = 0; // Reset axis answered counter
 
     for(let i=0;i<state.step;i++){
       const a = state.answers[i];
@@ -1456,7 +1518,7 @@ html,body{
   }
 
   function renderQuestion(){
-    if(state.step >= QUESTIONS.length){
+    if(state.step >= state.asked.length){
       showResult();
       return;
     }
@@ -1522,24 +1584,29 @@ html,body{
     const centered = {};
     for(const e of ELEMENTS) centered[e] = raw[e] - mean;
 
-    // scale to -50..+50 and round to 10-step
-    let maxAbs = Math.max(...Object.values(centered).map(Math.abs)) || 1;
-    const score10 = {};
+    // Use z-score based normalization instead of maxAbs scaling for natural distribution
+    const values = Object.values(centered);
+    const valuesMean = values.reduce((a,b) => a+b, 0) / values.length;
+    const variance = values.reduce((a,b) => a + Math.pow(b - valuesMean, 2), 0) / values.length;
+    const stdDev = Math.sqrt(variance) || 1;
+    
+    const score100 = {};
     for(const e of ELEMENTS){
-      const scaled = (centered[e]/maxAbs) * 50;
-      const step = Math.round(scaled / 10) * 10;
-      score10[e] = clamp(step, -50, 50);
+      // z-score to -100..+100 range, clamp to prevent extreme values
+      const zScore = (centered[e] - valuesMean) / stdDev;
+      const scaled = zScore * 30; // Scale factor for visual range
+      score100[e] = clamp(scaled, -100, 100);
     }
 
     // correct rounding residual so sum==0
-    const ssum = Object.values(score10).reduce((a,b)=>a+b,0);
+    const ssum = Object.values(score100).reduce((a,b)=>a+b,0);
     if(ssum !== 0){
-      const maxElem = Object.entries(score10).reduce((acc,cur)=>{
+      const maxElem = Object.entries(score100).reduce((acc,cur)=>{
         if(!acc) return cur;
         return Math.abs(cur[1]) > Math.abs(acc[1]) ? cur : acc;
       }, null);
       if(maxElem){
-        score10[maxElem[0]] = clamp(score10[maxElem[0]] - ssum, -50, 50);
+        score100[maxElem[0]] = clamp(score100[maxElem[0]] - ssum, -100, 100);
       }
     }
 
@@ -1547,10 +1614,10 @@ html,body{
     const el = document.getElementById("elementViz");
     if(el){
       el.innerHTML = ELEMENTS.map(e=>{
-        const val = score10[e];
+        const val = score100[e];
         const isValued = valuedProb[e] >= 0.5;
         const labelVal = isValued ? "価値寄り" : "非価値寄り";
-        const pctText = (val>0?"+":"") + String(val) + "%";
+        const pctText = (val>0?"+":"") + Number(val).toFixed(1) + "%";
         const leftPct = val < 0 ? Math.abs(val) : 0;
         const rightPct = val > 0 ? val : 0;
         return `
@@ -1560,10 +1627,10 @@ html,body{
               <div class="centerLine" aria-hidden="true"></div>
               <div class="barWrap" style="width:100%;">
                 <div style="flex:1;display:flex;justify-content:flex-end;padding-right:4px">
-                  <div style="width:0%;max-width:50%;" data-w="${leftPct}"><div class="neg" style="width:100%"></div></div>
+                  <div style="width:0%;max-width:100%;" data-w="${leftPct}"><div class="neg" style="width:100%"></div></div>
                 </div>
                 <div style="flex:1;display:flex;justify-content:flex-start;padding-left:4px">
-                  <div style="width:0%;max-width:50%;" data-w="${rightPct}"><div class="pos" style="width:100%"></div></div>
+                  <div style="width:0%;max-width:100%;" data-w="${rightPct}"><div class="pos" style="width:100%"></div></div>
                 </div>
               </div>
             </div>
@@ -1615,7 +1682,7 @@ html,body{
 
     // Return data for image generation
     return {
-      elementScore10: score10,
+      elementScore100: score100,
       quadraPercent: order.reduce((acc, q) => {
         acc[q] = parseFloat((Math.round(clamp(qDisplay[q],0,1)*1000)/10).toFixed(1));
         return acc;
